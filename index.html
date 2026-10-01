@@ -1,0 +1,2306 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>VIBEX | فايبكس</title>
+<link rel="icon" type="image/png" href="./assets/vibex-icon.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{
+ box-sizing:border-box;
+ margin:0;
+ padding:0;
+ -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+ width:100%;
+ height:100%;
+ overflow:hidden;
+ background:#000;
+ color:#fff;
+ font-family:Arial,Tahoma,sans-serif;
+}
+
+button{
+ border:0;
+ outline:0;
+ background:none;
+ color:#fff;
+ font-family:inherit;
+ cursor:pointer;
+}
+
+#app{
+ width:100%;
+ height:100dvh;
+ position:relative;
+ overflow:hidden;
+ background:#000;
+}
+
+/* TOP */
+.topbar{
+ position:fixed;
+ top:0;
+ right:0;
+ left:0;
+ height:65px;
+ z-index:100;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ padding:0 15px;
+ background:linear-gradient(to bottom,rgba(0,0,0,.78),transparent);
+ pointer-events:none;
+}
+
+.topbar>*{pointer-events:auto}
+
+.logo{
+ font-size:25px;
+ font-weight:900;
+ letter-spacing:1px;
+ background:linear-gradient(90deg,#ff1493,#8b5cf6,#00c6ff);
+ -webkit-background-clip:text;
+ background-clip:text;
+ color:transparent;
+}
+
+.top-actions{
+ display:flex;
+ gap:9px;
+}
+
+.top-btn{
+ width:40px;
+ height:40px;
+ border-radius:50%;
+ background:rgba(0,0,0,.35);
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-size:23px;
+ backdrop-filter:blur(10px);
+}
+
+/* FEED */
+#feed{
+ width:100%;
+ height:100dvh;
+ overflow-y:auto;
+ overflow-x:hidden;
+ scroll-snap-type:y mandatory;
+ scrollbar-width:none;
+ overscroll-behavior-y:contain;
+}
+
+#feed::-webkit-scrollbar{display:none}
+
+.video-card,
+.ad-card{
+ width:100%;
+ height:100dvh;
+ position:relative;
+ overflow:hidden;
+ scroll-snap-align:start;
+ scroll-snap-stop:always;
+ background:#000;
+}
+
+/* VIDEO */
+.video{
+ position:absolute;
+ inset:0;
+ width:100%;
+ height:100%;
+ object-fit:cover;
+ background:#000;
+ cursor:pointer;
+}
+
+.bottom-gradient{
+ position:absolute;
+ right:0;
+ left:0;
+ bottom:0;
+ height:48%;
+ background:linear-gradient(to top,rgba(0,0,0,.9),rgba(0,0,0,.5),transparent);
+ z-index:2;
+ pointer-events:none;
+}
+
+/* PLAY */
+.center-play{
+ position:absolute;
+ top:50%;
+ left:50%;
+ transform:translate(-50%,-50%);
+ width:75px;
+ height:75px;
+ border-radius:50%;
+ background:rgba(0,0,0,.48);
+ backdrop-filter:blur(7px);
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-size:34px;
+ opacity:0;
+ z-index:20;
+ pointer-events:none;
+}
+
+.center-play.show{opacity:1}
+
+/* HEART */
+.big-heart{
+ position:absolute;
+ top:50%;
+ left:50%;
+ transform:translate(-50%,-50%) scale(.3);
+ font-size:105px;
+ opacity:0;
+ pointer-events:none;
+ z-index:40;
+}
+
+.big-heart.show{
+ animation:heartPop .75s ease forwards;
+}
+
+@keyframes heartPop{
+ 0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}
+ 20%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}
+ 70%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+ 100%{opacity:0;transform:translate(-50%,-50%) scale(1.3)}
+}
+
+/* ACTIONS */
+.actions{
+ position:absolute;
+ right:10px;
+ bottom:125px;
+ z-index:25;
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ gap:16px;
+}
+
+.action{
+ width:55px;
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ gap:4px;
+ text-shadow:0 2px 5px #000;
+}
+
+.action-icon{
+ width:50px;
+ height:50px;
+ border-radius:50%;
+ background:rgba(0,0,0,.3);
+ backdrop-filter:blur(7px);
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-size:27px;
+}
+
+.action-count{
+ font-size:11px;
+ font-weight:800;
+}
+
+.like-btn.liked .action-icon{
+ color:#ff176b;
+ animation:likePop2 .28s ease;
+}
+
+@keyframes likePop2{
+ 0%{transform:scale(1)}
+ 50%{transform:scale(1.35)}
+ 100%{transform:scale(1)}
+}
+
+/* INFO */
+.video-info{
+ position:absolute;
+ right:15px;
+ left:80px;
+ bottom:82px;
+ z-index:15;
+ text-align:right;
+}
+
+.user-row{
+ display:flex;
+ align-items:center;
+ gap:9px;
+ margin-bottom:9px;
+}
+
+.avatar{
+ width:44px;
+ height:44px;
+ border-radius:50%;
+ object-fit:cover;
+ background:#222;
+ border:2px solid #fff;
+}
+
+.username{
+ font-size:16px;
+ font-weight:900;
+ max-width:160px;
+ overflow:hidden;
+ text-overflow:ellipsis;
+ white-space:nowrap;
+}
+
+.follow-btn{
+ padding:6px 12px;
+ border-radius:7px;
+ background:#ff176b;
+ font-size:12px;
+ font-weight:900;
+}
+
+.follow-btn.following{
+ background:rgba(255,255,255,.16);
+ border:1px solid rgba(255,255,255,.4);
+}
+
+.caption{
+ font-size:15px;
+ line-height:1.55;
+ max-height:90px;
+ overflow:hidden;
+ white-space:pre-wrap;
+ text-shadow:0 2px 5px #000;
+}
+
+.views{
+ margin-top:6px;
+ color:#ddd;
+ font-size:12px;
+}
+
+/* WATERMARK */
+.vibex-watermark{
+ position:absolute;
+ left:18px;
+ top:50%;
+ transform:translateY(-50%) rotate(-90deg);
+ font-size:14px;
+ font-weight:900;
+ letter-spacing:2px;
+ opacity:.65;
+ text-shadow:0 2px 5px #000;
+ z-index:5;
+ pointer-events:none;
+}
+
+/* AD */
+.ad-card{
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ background:
+ radial-gradient(circle at center,#24113c 0,#09000f 45%,#000 100%);
+}
+
+.ad-content{
+ width:min(90%,430px);
+ text-align:center;
+ padding:30px 22px;
+ border-radius:25px;
+ background:rgba(255,255,255,.07);
+ border:1px solid rgba(255,255,255,.12);
+ backdrop-filter:blur(15px);
+ box-shadow:0 20px 70px rgba(0,0,0,.6);
+}
+
+.ad-label{
+ display:inline-block;
+ padding:5px 10px;
+ border-radius:20px;
+ background:rgba(255,255,255,.12);
+ color:#bbb;
+ font-size:11px;
+ margin-bottom:20px;
+}
+
+.ad-logo{
+ font-size:48px;
+ font-weight:900;
+ background:linear-gradient(90deg,#ff1493,#8b5cf6,#00c6ff);
+ -webkit-background-clip:text;
+ background-clip:text;
+ color:transparent;
+ margin-bottom:15px;
+}
+
+.ad-title{
+ font-size:25px;
+ font-weight:900;
+ margin-bottom:10px;
+}
+
+.ad-text{
+ color:#ccc;
+ line-height:1.7;
+ margin-bottom:25px;
+}
+
+.ad-button{
+ display:inline-block;
+ padding:13px 28px;
+ border-radius:30px;
+ background:linear-gradient(90deg,#ff1493,#8b5cf6);
+ font-weight:900;
+}
+
+/* BOTTOM NAV */
+.bottom-nav{
+ position:fixed;
+ right:0;
+ left:0;
+ bottom:0;
+ height:70px;
+ z-index:200;
+ display:flex;
+ align-items:center;
+ justify-content:space-around;
+ padding:4px 7px env(safe-area-inset-bottom);
+ background:rgba(0,0,0,.88);
+ border-top:1px solid rgba(255,255,255,.1);
+ backdrop-filter:blur(15px);
+}
+
+.nav-item{
+ flex:1;
+ height:61px;
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ justify-content:center;
+ gap:2px;
+ color:#999;
+ font-size:10px;
+ font-weight:800;
+}
+
+.nav-icon{
+ font-size:24px;
+ line-height:27px;
+}
+
+.nav-item.active{color:#fff}
+
+.nav-item.active .nav-icon{
+ color:#ff176b;
+}
+
+.publish-icon{
+ width:44px;
+ height:32px;
+ border-radius:9px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ background:linear-gradient(90deg,#ff1493,#8b5cf6,#00c6ff);
+ font-size:27px;
+}
+
+.nav-item:active{
+ transform:scale(.92);
+}
+
+/* COMMENTS */
+.comments-sheet{
+ position:fixed;
+ right:0;
+ left:0;
+ bottom:0;
+ height:min(70dvh,600px);
+ background:#111;
+ z-index:500;
+ border-radius:22px 22px 0 0;
+ transform:translateY(100%);
+ transition:.3s ease;
+ display:flex;
+ flex-direction:column;
+}
+
+.comments-sheet.open{
+ transform:translateY(0);
+}
+
+.comments-head{
+ height:58px;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ padding:0 18px;
+ border-bottom:1px solid #292929;
+ flex-shrink:0;
+}
+
+.comments-title{font-weight:900}
+
+.close-comments{font-size:26px}
+
+#commentsList{
+ flex:1;
+ overflow-y:auto;
+ padding:14px;
+}
+
+.comment{
+ display:flex;
+ gap:10px;
+ margin-bottom:18px;
+}
+
+.comment-avatar{
+ width:37px;
+ height:37px;
+ border-radius:50%;
+ object-fit:cover;
+ background:#333;
+ flex-shrink:0;
+}
+
+.comment-user{
+ font-size:13px;
+ font-weight:900;
+ margin-bottom:3px;
+}
+
+.comment-text{
+ font-size:14px;
+ color:#eee;
+ line-height:1.5;
+}
+
+.comment-form{
+ display:flex;
+ gap:8px;
+ padding:10px;
+ border-top:1px solid #292929;
+}
+
+.comment-input{
+ flex:1;
+ background:#222;
+ border:0;
+ outline:0;
+ color:#fff;
+ border-radius:25px;
+ padding:12px 16px;
+ font-family:inherit;
+}
+
+.comment-send{
+ width:46px;
+ height:46px;
+ border-radius:50%;
+ background:#ff176b;
+ font-size:20px;
+}
+
+/* LOADING */
+#loading{
+ position:fixed;
+ inset:0;
+ z-index:1000;
+ background:#000;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ flex-direction:column;
+ gap:15px;
+}
+
+.loading-logo{
+ font-size:38px;
+ font-weight:900;
+ background:linear-gradient(90deg,#ff1493,#8b5cf6,#00c6ff);
+ -webkit-background-clip:text;
+ background-clip:text;
+ color:transparent;
+}
+
+.loader{
+ width:34px;
+ height:34px;
+ border:3px solid #333;
+ border-top-color:#ff176b;
+ border-radius:50%;
+ animation:spin .8s linear infinite;
+}
+
+@keyframes spin{
+ to{transform:rotate(360deg)}
+}
+
+#empty{
+ display:none;
+ position:fixed;
+ inset:0;
+ z-index:90;
+ align-items:center;
+ justify-content:center;
+ flex-direction:column;
+ text-align:center;
+ padding:30px;
+ background:#000;
+}
+
+#empty h2{margin-bottom:8px}
+
+#empty p{
+ color:#aaa;
+ line-height:1.6;
+}
+
+#toast{
+ position:fixed;
+ bottom:88px;
+ left:50%;
+ transform:translateX(-50%) translateY(20px);
+ background:rgba(25,25,25,.96);
+ color:#fff;
+ padding:11px 17px;
+ border-radius:25px;
+ z-index:2000;
+ opacity:0;
+ pointer-events:none;
+ transition:.25s;
+ font-size:13px;
+ white-space:nowrap;
+}
+
+#toast.show{
+ opacity:1;
+ transform:translateX(-50%) translateY(0);
+}
+
+/* SPEED INDICATOR */
+.speed-indicator{
+ position:absolute;
+ left:50%;
+ bottom:120px;
+ transform:translateX(-50%);
+ z-index:60;
+ padding:10px 18px;
+ border-radius:25px;
+ background:rgba(0,0,0,.7);
+ backdrop-filter:blur(8px);
+ font-size:15px;
+ font-weight:900;
+ opacity:0;
+ pointer-events:none;
+ transition:.2s;
+}
+
+.speed-indicator.show{opacity:1}
+
+@media(max-width:600px){
+ .actions{
+  right:7px;
+  bottom:125px;
+  gap:14px;
+ }
+
+ .action-icon{
+  width:47px;
+  height:47px;
+  font-size:26px;
+ }
+
+ .video-info{
+  right:14px;
+  left:70px;
+  bottom:82px;
+ }
+
+ .nav-item{font-size:9px}
+ .nav-icon{font-size:23px}
+ .publish-icon{
+  width:43px;
+  height:31px;
+ }
+}
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+<header class="topbar">
+ <div class="logo">VIBEX</div>
+
+ <div class="top-actions">
+  <button class="top-btn" onclick="openSearch()">🔍</button>
+  <button class="top-btn" onclick="openNotifications()">🔔</button>
+ </div>
+</header>
+
+<main id="feed"></main>
+
+<div id="loading">
+ <div class="loading-logo">VIBEX</div>
+ <div class="loader"></div>
+</div>
+
+<div id="empty">
+ <h2>لا توجد فيديوهات بعد</h2>
+ <p>كن أول شخص ينشر فيديو على VIBEX 🎬</p>
+</div>
+
+<nav class="bottom-nav">
+
+ <button class="nav-item active" onclick="goHome()">
+  <span class="nav-icon">🏠</span>
+  <span>الرئيسية</span>
+ </button>
+
+ <button class="nav-item" onclick="goFriends()">
+  <span class="nav-icon">👥</span>
+  <span>الأصدقاء</span>
+ </button>
+
+ <button class="nav-item" onclick="goUpload()">
+  <span class="publish-icon">＋</span>
+  <span>نشر</span>
+ </button>
+
+ <button class="nav-item" onclick="goNotifications()">
+  <span class="nav-icon">🔔</span>
+  <span>الإشعارات</span>
+ </button>
+
+ <button class="nav-item" onclick="goProfile()">
+  <span class="nav-icon">👤</span>
+  <span>حسابي</span>
+ </button>
+
+</nav>
+
+</div>
+
+<div id="commentsSheet" class="comments-sheet">
+
+ <div class="comments-head">
+  <div class="comments-title">
+   التعليقات <span id="commentsCount">0</span>
+  </div>
+
+  <button class="close-comments" onclick="closeComments()">×</button>
+ </div>
+
+ <div id="commentsList"></div>
+
+ <form class="comment-form" onsubmit="sendComment(event)">
+  <input
+   id="commentInput"
+   class="comment-input"
+   placeholder="اكتب تعليقًا..."
+   autocomplete="off">
+
+  <button class="comment-send">➤</button>
+ </form>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* =========================================
+   SUPABASE
+========================================= */
+
+const SUPABASE_URL =
+"https://uxeflbmxngnaygrvrsbe.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_wKRwXTeO5ZeBKIQ7EbW5Xw_ockmVLNq";
+
+const db =
+window.supabase.createClient(
+ SUPABASE_URL,
+ SUPABASE_KEY
+);
+
+
+/* =========================================
+   VARIABLES
+========================================= */
+
+let currentUser=null;
+let currentCommentsVideo=null;
+let allVideos=[];
+let observer=null;
+
+const profileCache=new Map();
+
+let lastTap=0;
+let longPressTimer=null;
+let speedVideo=null;
+let speedTimeout=null;
+
+
+/* =========================================
+   INIT
+========================================= */
+
+async function init(){
+
+ try{
+
+  const {
+   data:{session}
+  }=await db.auth.getSession();
+
+  currentUser=session?.user||null;
+
+  await loadVideos();
+
+ }
+
+ catch(error){
+
+  console.error(error);
+
+  showToast("حدث خطأ أثناء تحميل VIBEX");
+
+ }
+
+ finally{
+
+  document.getElementById("loading").style.display="none";
+
+ }
+
+}
+
+
+/* =========================================
+   LOAD VIDEOS
+========================================= */
+
+async function loadVideos(){
+
+ const {
+  data:videos,
+  error
+ }=await db
+ .from("videos")
+ .select(`
+  id,
+  user_id,
+  caption,
+  video_url,
+  thumbnail_url,
+  views_count,
+  likes_count,
+  comments_count,
+  created_at
+ `)
+ .order(
+  "created_at",
+  {ascending:false}
+ );
+
+ if(error){
+
+  console.error(error);
+  showToast("تعذر تحميل الفيديوهات");
+  return;
+
+ }
+
+ allVideos=videos||[];
+
+ if(!allVideos.length){
+
+  document.getElementById("empty").style.display="flex";
+  return;
+
+ }
+
+ const userIds=[
+  ...new Set(
+   allVideos.map(v=>v.user_id)
+  )
+ ];
+
+ if(userIds.length){
+
+  const {data:profiles}=await db
+  .from("profiles")
+  .select(`
+   id,
+   username,
+   display_name,
+   avatar_url
+  `)
+  .in("id",userIds);
+
+  (profiles||[]).forEach(profile=>{
+   profileCache.set(profile.id,profile);
+  });
+
+ }
+
+ renderFeed();
+
+}
+
+
+/* =========================================
+   RENDER
+========================================= */
+
+function renderFeed(){
+
+ const feed=document.getElementById("feed");
+
+ feed.innerHTML="";
+
+ allVideos.forEach((video,index)=>{
+
+  /* الفيديو */
+  const profile=
+  profileCache.get(video.user_id)||{
+   username:"user",
+   display_name:"مستخدم VIBEX",
+   avatar_url:""
+  };
+
+  const card=document.createElement("article");
+
+  card.className="video-card";
+
+  card.dataset.videoId=video.id;
+
+  card.innerHTML=`
+
+   <video
+    class="video"
+    src="${escapeAttr(video.video_url)}"
+    ${video.thumbnail_url
+      ?`poster="${escapeAttr(video.thumbnail_url)}"`
+      :""}
+    playsinline
+    loop
+    preload="${index<2?"auto":"metadata"}">
+   </video>
+
+   <div class="bottom-gradient"></div>
+
+   <div class="vibex-watermark">VIBEX</div>
+
+   <div class="center-play">▶</div>
+
+   <div class="big-heart">❤️</div>
+
+   <div class="speed-indicator">
+    ×2 سرعة
+   </div>
+
+   <div class="actions">
+
+    <button
+     class="action like-btn"
+     onclick="handleLike(event,'${video.id}',this)">
+
+     <span class="action-icon">♡</span>
+
+     <span class="action-count">
+      ${formatNumber(video.likes_count||0)}
+     </span>
+
+    </button>
+
+    <button
+     class="action"
+     onclick="openComments(event,'${video.id}')">
+
+     <span class="action-icon">💬</span>
+
+     <span class="action-count comment-count">
+      ${formatNumber(video.comments_count||0)}
+     </span>
+
+    </button>
+
+    <button
+     class="action"
+     onclick="openProfileById(event,'${video.user_id}')">
+
+     <span class="action-icon">👤</span>
+     <span class="action-count">حساب</span>
+
+    </button>
+
+    <button
+     class="action"
+     onclick="toggleMore(event,'${video.id}')">
+
+     <span class="action-icon">⋮</span>
+     <span class="action-count">المزيد</span>
+
+    </button>
+
+   </div>
+
+   <div class="video-info">
+
+    <div class="user-row">
+
+     <img
+      class="avatar"
+      src="${escapeAttr(
+       profile.avatar_url||
+       "https://ui-avatars.com/api/?name=VIBEX&background=111&color=fff"
+      )}"
+      onerror="
+       this.src='https://ui-avatars.com/api/?name=VIBEX&background=111&color=fff'
+      ">
+
+     <div class="username">
+      @${escapeHtml(profile.username||"user")}
+     </div>
+
+     <button
+      class="follow-btn"
+      onclick="toggleFollow(event,'${video.user_id}',this)">
+      متابعة
+     </button>
+
+    </div>
+
+    <div class="caption">
+     ${escapeHtml(video.caption||"")}
+    </div>
+
+    <div class="views">
+     👁
+     <span class="views-number">
+      ${formatNumber(video.views_count||0)}
+     </span>
+     مشاهدة
+    </div>
+
+   </div>
+  `;
+
+  feed.appendChild(card);
+
+  setupVideoInteractions(card,video);
+
+  /* بعد أول فيديو يظهر الإعلان */
+  if(index===0){
+   feed.appendChild(createAdCard());
+  }
+
+ });
+
+ setupObserver();
+ checkExistingLikes();
+ checkExistingFollows();
+
+}
+
+
+/* =========================================
+   AD CARD
+========================================= */
+
+function createAdCard(){
+
+ const ad=document.createElement("article");
+
+ ad.className="ad-card";
+
+ ad.innerHTML=`
+
+  <div class="ad-content">
+
+   <div class="ad-label">
+    إعلان
+   </div>
+
+   <div class="ad-logo">
+    VIBEX
+   </div>
+
+   <div class="ad-title">
+    مساحة إعلانية
+   </div>
+
+   <div class="ad-text">
+    يمكنك وضع إعلانك هنا والوصول إلى مستخدمي VIBEX.
+   </div>
+
+   <button
+    class="ad-button"
+    onclick="openAd()">
+    معرفة المزيد
+   </button>
+
+  </div>
+ `;
+
+ return ad;
+
+}
+
+
+/*
+ ضع هنا رابط الإعلان الحقيقي
+ لاحقًا.
+*/
+function openAd(){
+
+ showToast("سيتم فتح الإعلان هنا");
+
+}
+
+
+/* =========================================
+   VIDEO INTERACTIONS
+========================================= */
+
+function setupVideoInteractions(card,video){
+
+ const videoEl=card.querySelector(".video");
+ const playButton=card.querySelector(".center-play");
+ const speedIndicator=card.querySelector(".speed-indicator");
+
+ let localLastTap=0;
+
+ /* الضغط العادي + الضغط المزدوج */
+ videoEl.addEventListener("click",()=>{
+
+  const now=Date.now();
+
+  if(now-localLastTap<350){
+
+   doubleLike(card,video.id);
+
+   localLastTap=0;
+
+   return;
+
+  }
+
+  localLastTap=now;
+
+  setTimeout(()=>{
+
+   if(
+    Date.now()-localLastTap>=330
+   ){
+
+    toggleVideo(
+     videoEl,
+     playButton
+    );
+
+   }
+
+  },340);
+
+ });
+
+
+ /*
+  الضغط المطول على أسفل الشاشة
+  = سرعة ×2
+ */
+ videoEl.addEventListener(
+  "pointerdown",
+  event=>{
+
+   const rect=
+   videoEl.getBoundingClientRect();
+
+   const y=
+   event.clientY-rect.top;
+
+   const isBottom=
+   y>rect.height*.70;
+
+   if(!isBottom)return;
+
+   clearTimeout(longPressTimer);
+
+   longPressTimer=setTimeout(()=>{
+
+    speedVideo=videoEl;
+
+    videoEl.playbackRate=2;
+
+    speedIndicator.classList.add("show");
+
+   },350);
+
+  }
+ );
+
+
+ function stopSpeed(){
+
+  clearTimeout(longPressTimer);
+
+  if(speedVideo===videoEl){
+
+   videoEl.playbackRate=1;
+
+   speedIndicator.classList.remove("show");
+
+   speedVideo=null;
+
+  }
+
+ }
+
+ videoEl.addEventListener(
+  "pointerup",
+  stopSpeed
+ );
+
+ videoEl.addEventListener(
+  "pointercancel",
+  stopSpeed
+ );
+
+ videoEl.addEventListener(
+  "pointerleave",
+  stopSpeed
+ );
+
+
+ videoEl.addEventListener(
+  "pause",
+  ()=>{
+
+   playButton.textContent="▶";
+   playButton.classList.add("show");
+
+  }
+ );
+
+
+ videoEl.addEventListener(
+  "playing",
+  ()=>{
+
+   playButton.classList.remove("show");
+
+  }
+ );
+
+
+ playButton.addEventListener(
+  "click",
+  event=>{
+
+   event.stopPropagation();
+
+   toggleVideo(
+    videoEl,
+    playButton
+   );
+
+  }
+ );
+
+
+ card._showHeart=()=>{
+
+  const heart=
+  card.querySelector(".big-heart");
+
+  heart.classList.remove("show");
+
+  void heart.offsetWidth;
+
+  heart.classList.add("show");
+
+ };
+
+}
+
+
+/* =========================================
+   PLAY
+========================================= */
+
+function toggleVideo(videoEl,playButton){
+
+ if(videoEl.paused){
+
+  videoEl.muted=false;
+
+  videoEl.play()
+  .then(()=>{
+
+   playButton.classList.remove("show");
+
+  })
+  .catch(()=>{
+
+   videoEl.muted=true;
+
+   videoEl.play()
+   .then(()=>{
+
+    playButton.classList.remove("show");
+
+    showToast(
+     "اضغط مرة أخرى لتشغيل الصوت 🔊"
+    );
+
+   })
+   .catch(()=>{});
+
+  });
+
+ }
+
+ else{
+
+  videoEl.pause();
+
+ }
+
+}
+
+
+/* =========================================
+   LIKE
+========================================= */
+
+async function doubleLike(card,videoId){
+
+ card._showHeart?.();
+
+ const button=
+ card.querySelector(".like-btn");
+
+ if(
+  !button.classList.contains("liked")
+ ){
+
+  await likeVideo(
+   videoId,
+   button
+  );
+
+ }
+
+}
+
+
+async function handleLike(
+ event,
+ videoId,
+ button
+){
+
+ event.stopPropagation();
+
+ if(!currentUser){
+
+  showToast(
+   "سجل الدخول أولًا للإعجاب"
+  );
+
+  return;
+
+ }
+
+ if(button.classList.contains("loading")){
+  return;
+ }
+
+ button.classList.add("loading");
+
+ try{
+
+  const {
+   data:existing
+  }=await db
+  .from("likes")
+  .select("user_id")
+  .eq("user_id",currentUser.id)
+  .eq("video_id",videoId)
+  .maybeSingle();
+
+  if(existing){
+
+   await db
+   .from("likes")
+   .delete()
+   .eq("user_id",currentUser.id)
+   .eq("video_id",videoId);
+
+   button.classList.remove("liked");
+
+   button.querySelector(
+    ".action-icon"
+   ).textContent="♡";
+
+  }
+
+  else{
+
+   await db
+   .from("likes")
+   .insert({
+    user_id:currentUser.id,
+    video_id:videoId
+   });
+
+   button.classList.add("liked");
+
+   button.querySelector(
+    ".action-icon"
+   ).textContent="♥";
+
+  }
+
+  await refreshLikeCount(
+   videoId,
+   button
+  );
+
+ }
+
+ catch(error){
+
+  console.error(error);
+
+  showToast(
+   "تعذر تحديث الإعجاب"
+  );
+
+ }
+
+ finally{
+
+  button.classList.remove("loading");
+
+ }
+
+}
+
+
+async function likeVideo(
+ videoId,
+ button
+){
+
+ if(!currentUser){
+
+  showToast(
+   "سجل الدخول أولًا للإعجاب"
+  );
+
+  return;
+
+ }
+
+ const {
+  data:existing
+ }=await db
+ .from("likes")
+ .select("user_id")
+ .eq("user_id",currentUser.id)
+ .eq("video_id",videoId)
+ .maybeSingle();
+
+ if(existing)return;
+
+ const {error}=await db
+ .from("likes")
+ .insert({
+  user_id:currentUser.id,
+  video_id:videoId
+ });
+
+ if(error){
+
+  console.error(error);
+  return;
+
+ }
+
+ button.classList.add("liked");
+
+ button.querySelector(
+  ".action-icon"
+ ).textContent="♥";
+
+ await refreshLikeCount(
+  videoId,
+  button
+ );
+
+}
+
+
+/* =========================================
+   SAVE COUNTS
+========================================= */
+
+async function refreshLikeCount(
+ videoId,
+ button
+){
+
+ const {
+  count
+ }=await db
+ .from("likes")
+ .select("*",{count:"exact",head:true})
+ .eq("video_id",videoId);
+
+ const finalCount=count||0;
+
+ button.querySelector(
+  ".action-count"
+ ).textContent=
+ formatNumber(finalCount);
+
+ /*
+  حفظ الرقم في videos
+ */
+ await db
+ .from("videos")
+ .update({
+  likes_count:finalCount
+ })
+ .eq("id",videoId);
+
+ const video=
+ allVideos.find(
+  v=>v.id===videoId
+ );
+
+ if(video){
+  video.likes_count=finalCount;
+ }
+
+}
+
+
+async function updateCommentCount(
+ videoId
+){
+
+ const {
+  count
+ }=await db
+ .from("comments")
+ .select("*",{count:"exact",head:true})
+ .eq("video_id",videoId);
+
+ const finalCount=count||0;
+
+ await db
+ .from("videos")
+ .update({
+  comments_count:finalCount
+ })
+ .eq("id",videoId);
+
+ const video=
+ allVideos.find(
+  v=>v.id===videoId
+ );
+
+ if(video){
+  video.comments_count=finalCount;
+ }
+
+ const card=
+ document.querySelector(
+  `[data-video-id="${videoId}"]`
+ );
+
+ if(card){
+
+  const el=
+  card.querySelector(
+   ".comment-count"
+  );
+
+  if(el){
+   el.textContent=
+   formatNumber(finalCount);
+  }
+
+ }
+
+}
+
+
+/* =========================================
+   EXISTING LIKES
+========================================= */
+
+async function checkExistingLikes(){
+
+ if(!currentUser)return;
+
+ const {
+  data
+ }=await db
+ .from("likes")
+ .select("video_id")
+ .eq("user_id",currentUser.id);
+
+ (data||[]).forEach(item=>{
+
+  const card=
+  document.querySelector(
+   `[data-video-id="${item.video_id}"]`
+  );
+
+  if(!card)return;
+
+  const button=
+  card.querySelector(".like-btn");
+
+  button.classList.add("liked");
+
+  button.querySelector(
+   ".action-icon"
+  ).textContent="♥";
+
+ });
+
+}
+
+
+/* =========================================
+   COMMENTS
+========================================= */
+
+async function openComments(
+ event,
+ videoId
+){
+
+ event.stopPropagation();
+
+ currentCommentsVideo=videoId;
+
+ document
+ .getElementById("commentsSheet")
+ .classList.add("open");
+
+ await loadComments(videoId);
+
+}
+
+
+function closeComments(){
+
+ document
+ .getElementById("commentsSheet")
+ .classList.remove("open");
+
+ currentCommentsVideo=null;
+
+}
+
+
+async function loadComments(videoId){
+
+ const list=
+ document.getElementById("commentsList");
+
+ list.innerHTML=`
+  <div style="
+   text-align:center;
+   color:#aaa;
+   padding:30px;
+  ">
+   جاري تحميل التعليقات...
+  </div>
+ `;
+
+ const {
+  data:comments,
+  error
+ }=await db
+ .from("comments")
+ .select(`
+  id,
+  user_id,
+  content,
+  created_at
+ `)
+ .eq("video_id",videoId)
+ .order(
+  "created_at",
+  {ascending:true}
+ );
+
+ if(error){
+
+  list.innerHTML=`
+   <div style="
+    text-align:center;
+    color:#aaa;
+    padding:30px;
+   ">
+    تعذر تحميل التعليقات
+   </div>
+  `;
+
+  return;
+
+ }
+
+ document.getElementById(
+  "commentsCount"
+ ).textContent=comments.length;
+
+ if(!comments.length){
+
+  list.innerHTML=`
+   <div style="
+    text-align:center;
+    color:#aaa;
+    padding:30px;
+   ">
+    لا توجد تعليقات بعد
+   </div>
+  `;
+
+  return;
+
+ }
+
+ const ids=[
+  ...new Set(
+   comments.map(c=>c.user_id)
+  )
+ ];
+
+ const {
+  data:profiles
+ }=await db
+ .from("profiles")
+ .select(`
+  id,
+  username,
+  display_name,
+  avatar_url
+ `)
+ .in("id",ids);
+
+ const profileMap=
+ new Map(
+  (profiles||[]).map(
+   p=>[p.id,p]
+  )
+ );
+
+ list.innerHTML="";
+
+ comments.forEach(comment=>{
+
+  const profile=
+  profileMap.get(
+   comment.user_id
+  )||{};
+
+  const row=
+  document.createElement("div");
+
+  row.className="comment";
+
+  row.innerHTML=`
+
+   <img
+    class="comment-avatar"
+    src="${escapeAttr(
+     profile.avatar_url||
+     "https://ui-avatars.com/api/?name=V&background=222&color=fff"
+    )}">
+
+   <div>
+
+    <div class="comment-user">
+     @${escapeHtml(
+      profile.username||"user"
+     )}
+    </div>
+
+    <div class="comment-text">
+     ${escapeHtml(
+      comment.content
+     )}
+    </div>
+
+   </div>
+  `;
+
+  list.appendChild(row);
+
+ });
+
+ list.scrollTop=list.scrollHeight;
+
+}
+
+
+async function sendComment(event){
+
+ event.preventDefault();
+
+ if(!currentUser){
+
+  showToast(
+   "سجل الدخول أولًا للتعليق"
+  );
+
+  return;
+
+ }
+
+ if(!currentCommentsVideo)return;
+
+ const input=
+ document.getElementById("commentInput");
+
+ const text=input.value.trim();
+
+ if(!text)return;
+
+ input.disabled=true;
+
+ try{
+
+  const {error}=
+  await db
+  .from("comments")
+  .insert({
+   user_id:currentUser.id,
+   video_id:currentCommentsVideo,
+   content:text
+  });
+
+  if(error)throw error;
+
+  input.value="";
+
+  await loadComments(
+   currentCommentsVideo
+  );
+
+  await updateCommentCount(
+   currentCommentsVideo
+  );
+
+ }
+
+ catch(error){
+
+  console.error(error);
+
+  showToast(
+   "تعذر إرسال التعليق"
+  );
+
+ }
+
+ finally{
+
+  input.disabled=false;
+
+ }
+
+}
+
+
+/* =========================================
+   FOLLOW
+========================================= */
+
+async function toggleFollow(
+ event,
+ userId,
+ button
+){
+
+ event.stopPropagation();
+
+ if(!currentUser){
+
+  showToast(
+   "سجل الدخول أولًا للمتابعة"
+  );
+
+  return;
+
+ }
+
+ if(currentUser.id===userId){
+
+  showToast("هذا حسابك");
+  return;
+
+ }
+
+ try{
+
+  const {
+   data:existing
+  }=await db
+  .from("follows")
+  .select("follower_id")
+  .eq("follower_id",currentUser.id)
+  .eq("following_id",userId)
+  .maybeSingle();
+
+  if(existing){
+
+   await db
+   .from("follows")
+   .delete()
+   .eq("follower_id",currentUser.id)
+   .eq("following_id",userId);
+
+   button.textContent="متابعة";
+   button.classList.remove("following");
+
+  }
+
+  else{
+
+   const {error}=await db
+   .from("follows")
+   .insert({
+    follower_id:currentUser.id,
+    following_id:userId
+   });
+
+   if(error)throw error;
+
+   button.textContent="متابَع";
+   button.classList.add("following");
+
+  }
+
+ }
+
+ catch(error){
+
+  console.error(error);
+
+  showToast(
+   "تعذر تحديث المتابعة"
+  );
+
+ }
+
+}
+
+
+async function checkExistingFollows(){
+
+ if(!currentUser)return;
+
+ const {
+  data
+ }=await db
+ .from("follows")
+ .select("following_id")
+ .eq(
+  "follower_id",
+  currentUser.id
+ );
+
+ (data||[]).forEach(item=>{
+
+  document
+  .querySelectorAll(".video-card")
+  .forEach(card=>{
+
+   const button=
+   card.querySelector(
+    `.follow-btn`
+   );
+
+   if(!button)return;
+
+   /*
+    نقارن صاحب الفيديو
+   */
+   const video=
+   allVideos.find(
+    v=>
+    v.id===card.dataset.videoId
+   );
+
+   if(
+    video &&
+    video.user_id===item.following_id
+   ){
+
+    button.textContent="متابَع";
+    button.classList.add("following");
+
+   }
+
+  });
+
+ });
+
+}
+
+
+/* =========================================
+   OBSERVER
+========================================= */
+
+function setupObserver(){
+
+ if(observer){
+  observer.disconnect();
+ }
+
+ const cards=
+ document.querySelectorAll(
+  ".video-card"
+ );
+
+ observer=
+ new IntersectionObserver(
+  entries=>{
+
+   entries.forEach(entry=>{
+
+    const video=
+    entry.target.querySelector(".video");
+
+    if(entry.isIntersecting){
+
+     video.muted=false;
+
+     video.play()
+     .catch(()=>{
+
+      video.muted=true;
+
+      video.play()
+      .catch(()=>{});
+
+     });
+
+     incrementView(
+      entry.target.dataset.videoId
+     );
+
+    }
+
+    else{
+
+     video.pause();
+
+     video.playbackRate=1;
+
+    }
+
+   });
+
+  },
+  {threshold:.7}
+ );
+
+ cards.forEach(card=>{
+  observer.observe(card);
+ });
+
+}
+
+
+/* =========================================
+   VIEWS
+========================================= */
+
+const viewedVideos=new Set();
+
+async function incrementView(videoId){
+
+ if(viewedVideos.has(videoId)){
+  return;
+ }
+
+ viewedVideos.add(videoId);
+
+ try{
+
+  const video=
+  allVideos.find(
+   v=>v.id===videoId
+  );
+
+  if(!video)return;
+
+  const newCount=
+  Number(video.views_count||0)+1;
+
+  /*
+   محاولة تحديث الرقم
+   حسب صلاحيات Supabase
+  */
+  const {error}=
+  await db
+  .from("videos")
+  .update({
+   views_count:newCount
+  })
+  .eq("id",videoId);
+
+  if(!error){
+
+   video.views_count=newCount;
+
+   const card=
+   document.querySelector(
+    `[data-video-id="${videoId}"]`
+   );
+
+   const el=
+   card?.querySelector(
+    ".views-number"
+   );
+
+   if(el){
+    el.textContent=
+    formatNumber(newCount);
+   }
+
+  }
+
+ }
+
+ catch(error){
+
+  console.log(
+   "View update skipped",
+   error
+  );
+
+ }
+
+}
+
+
+/* =========================================
+   MORE MENU
+========================================= */
+
+function toggleMore(event,videoId){
+
+ event.stopPropagation();
+
+ closeAllMenus();
+
+ /*
+  قائمة بسيطة
+ */
+ showToast(
+  "خيارات الفيديو"
+ );
+
+}
+
+
+function closeAllMenus(){}
+
+
+/* =========================================
+   NAVIGATION
+========================================= */
+
+function goHome(){
+
+ location.href="./index.html";
+
+}
+
+function goFriends(){
+
+ location.href="./pages/search.html";
+
+}
+
+function goUpload(){
+
+ location.href="./pages/upload.html";
+
+}
+
+function goNotifications(){
+
+ location.href="./pages/notifications.html";
+
+}
+
+function goProfile(){
+
+ location.href="./pages/profile.html";
+
+}
+
+function openSearch(){
+
+ location.href="./pages/search.html";
+
+}
+
+function openNotifications(){
+
+ location.href="./pages/notifications.html";
+
+}
+
+function openProfileById(
+ event,
+ userId
+){
+
+ event.stopPropagation();
+
+ location.href=
+ `./pages/profile.html?id=${encodeURIComponent(userId)}`;
+
+}
+
+
+/* =========================================
+   HELPERS
+========================================= */
+
+function formatNumber(number){
+
+ number=Number(number||0);
+
+ if(number>=1000000){
+
+  return(
+   (number/1000000)
+   .toFixed(1)
+   .replace(".0","")
+   +"M"
+  );
+
+ }
+
+ if(number>=1000){
+
+  return(
+   (number/1000)
+   .toFixed(1)
+   .replace(".0","")
+   +"K"
+  );
+
+ }
+
+ return String(number);
+
+}
+
+
+function escapeHtml(value){
+
+ return String(value??"")
+ .replace(/&/g,"&amp;")
+ .replace(/</g,"&lt;")
+ .replace(/>/g,"&gt;")
+ .replace(/"/g,"&quot;")
+ .replace(/'/g,"&#039;");
+
+}
+
+
+function escapeAttr(value){
+
+ return escapeHtml(value);
+
+}
+
+
+/* =========================================
+   TOAST
+========================================= */
+
+let toastTimer;
+
+function showToast(message){
+
+ const toast=
+ document.getElementById("toast");
+
+ toast.textContent=message;
+
+ toast.classList.add("show");
+
+ clearTimeout(toastTimer);
+
+ toastTimer=setTimeout(()=>{
+
+  toast.classList.remove("show");
+
+ },2500);
+
+}
+
+
+/* =========================================
+   CLOSE MENUS
+========================================= */
+
+document.addEventListener(
+ "click",
+ event=>{
+
+  if(
+   !event.target.closest(".more-menu")
+  ){
+
+   closeAllMenus();
+
+  }
+
+ }
+);
+
+
+/* =========================================
+   INIT
+========================================= */
+
+init();
+
+</script>
+
+</body>
+</html>

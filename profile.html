@@ -1,0 +1,1955 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>حسابي | VIBEX</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+<style>
+*{box-sizing:border-box}
+html,body{
+  margin:0;
+  background:#07070b;
+  color:#fff;
+  font-family:Arial,Tahoma,sans-serif;
+}
+body{padding-bottom:80px}
+button,input,textarea{font:inherit}
+button{cursor:pointer;border:0}
+a{text-decoration:none;color:inherit}
+
+.header{
+  height:65px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 15px;
+  position:sticky;
+  top:0;
+  z-index:30;
+  background:rgba(7,7,11,.95);
+  border-bottom:1px solid #25252d;
+  backdrop-filter:blur(15px)
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  font-size:22px;
+  font-weight:900
+}
+
+.logo{
+  width:36px;
+  height:36px;
+  border-radius:11px;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,#7c3cff,#ff2d8d)
+}
+
+.head-btn{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  background:#18181f;
+  color:#fff;
+  font-size:20px
+}
+
+.container{
+  max-width:700px;
+  margin:auto;
+  padding:18px 14px
+}
+
+.profile-top{
+  text-align:center;
+  padding:12px 0 20px
+}
+
+.avatar-wrap{
+  position:relative;
+  width:100px;
+  height:100px;
+  margin:auto
+}
+
+.avatar{
+  width:100px;
+  height:100px;
+  border-radius:50%;
+  object-fit:cover;
+  background:#20202a;
+  border:3px solid #fff
+}
+
+.change-photo{
+  position:absolute;
+  bottom:0;
+  left:0;
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#7c3cff,#ff2d8d);
+  border:3px solid #07070b;
+  color:#fff
+}
+
+.name{
+  margin:12px 0 3px;
+  font-size:23px;
+  font-weight:900
+}
+
+.username{
+  color:#999;
+  font-size:14px
+}
+
+.status{
+  display:inline-block;
+  margin-top:9px;
+  padding:7px 12px;
+  border-radius:20px;
+  background:#18181f;
+  color:#ddd;
+  font-size:13px
+}
+
+.bio{
+  color:#bbb;
+  line-height:1.6;
+  margin:10px auto;
+  max-width:500px
+}
+
+.stats{
+  display:flex;
+  justify-content:center;
+  gap:35px;
+  margin:18px 0
+}
+
+.stat{
+  text-align:center
+}
+
+.stat strong{
+  display:block;
+  font-size:19px
+}
+
+.stat span{
+  color:#888;
+  font-size:12px
+}
+
+.profile-buttons{
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  flex-wrap:wrap
+}
+
+.btn{
+  padding:11px 17px;
+  border-radius:11px;
+  background:#20202a;
+  color:#fff;
+  font-weight:700
+}
+
+.btn.primary{
+  background:linear-gradient(90deg,#7c3cff,#ff2d8d)
+}
+
+.btn.premium{
+  background:linear-gradient(90deg,#ffb300,#ff4d00)
+}
+
+.tabs{
+  display:flex;
+  border-bottom:1px solid #292932;
+  margin-top:15px
+}
+
+.tab{
+  flex:1;
+  padding:15px;
+  background:none;
+  color:#777
+}
+
+.tab.active{
+  color:#fff;
+  border-bottom:3px solid #ff2d8d
+}
+
+.videos{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:3px;
+  margin-top:3px
+}
+
+.video{
+  aspect-ratio:9/14;
+  background:#15151c;
+  position:relative;
+  overflow:hidden
+}
+
+.video video{
+  width:100%;
+  height:100%;
+  object-fit:cover
+}
+
+.video-info{
+  position:absolute;
+  bottom:5px;
+  right:5px;
+  left:5px;
+  font-size:11px;
+  text-shadow:0 1px 3px #000
+}
+
+.settings{
+  display:none;
+  margin-top:18px
+}
+
+.settings.show{
+  display:block
+}
+
+.section-title{
+  font-size:20px;
+  font-weight:900;
+  margin:20px 0 10px
+}
+
+.setting-card{
+  background:#111117;
+  border:1px solid #292932;
+  border-radius:15px;
+  overflow:hidden;
+  margin-bottom:12px
+}
+
+.setting{
+  width:100%;
+  min-height:58px;
+  padding:12px 15px;
+  background:none;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  text-align:right;
+  border-bottom:1px solid #25252d
+}
+
+.setting:last-child{
+  border-bottom:0
+}
+
+.setting-left{
+  display:flex;
+  align-items:center;
+  gap:12px
+}
+
+.setting-icon{
+  width:38px;
+  height:38px;
+  display:grid;
+  place-items:center;
+  border-radius:10px;
+  background:#20202a
+}
+
+.setting-title{
+  font-weight:700
+}
+
+.setting-sub{
+  display:block;
+  color:#777;
+  font-size:11px;
+  margin-top:4px
+}
+
+.arrow{
+  color:#777;
+  font-size:20px
+}
+
+.danger-text{
+  color:#ff5475
+}
+
+.premium-card{
+  padding:20px;
+  border-radius:18px;
+  background:linear-gradient(135deg,#241600,#291019);
+  border:1px solid #754400;
+  margin-bottom:15px
+}
+
+.premium-card h2{
+  margin:0 0 7px
+}
+
+.premium-card p{
+  color:#bbb;
+  line-height:1.6
+}
+
+.plans{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:15px
+}
+
+.plan{
+  padding:16px;
+  border:1px solid #5a421b;
+  background:#17130d;
+  border-radius:14px
+}
+
+.plan h3{
+  margin:0 0 8px
+}
+
+.price{
+  font-size:25px;
+  font-weight:900
+}
+
+.price small{
+  font-size:11px;
+  color:#aaa
+}
+
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:100;
+  background:rgba(0,0,0,.75);
+  align-items:flex-end
+}
+
+.modal.show{
+  display:flex
+}
+
+.sheet{
+  width:100%;
+  max-height:88vh;
+  overflow:auto;
+  background:#15151b;
+  border-radius:22px 22px 0 0;
+  padding:20px
+}
+
+.sheet-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px
+}
+
+.sheet-head h2{
+  margin:0
+}
+
+.close{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:#272730;
+  color:#fff;
+  font-size:20px
+}
+
+.field{
+  margin-bottom:14px
+}
+
+.field label{
+  display:block;
+  margin-bottom:7px;
+  color:#bbb;
+  font-size:13px
+}
+
+.field input,
+.field textarea{
+  width:100%;
+  background:#0c0c11;
+  color:#fff;
+  border:1px solid #30303a;
+  border-radius:11px;
+  padding:13px;
+  outline:none
+}
+
+.field textarea{
+  min-height:90px;
+  resize:vertical
+}
+
+.switch{
+  width:48px;
+  height:27px;
+  border-radius:30px;
+  background:#33333d;
+  padding:3px
+}
+
+.switch span{
+  display:block;
+  width:21px;
+  height:21px;
+  border-radius:50%;
+  background:#fff;
+  transition:.2s
+}
+
+.switch.on{
+  background:#7c3cff
+}
+
+.switch.on span{
+  transform:translateX(-21px)
+}
+
+.toast{
+  position:fixed;
+  bottom:85px;
+  left:50%;
+  transform:translate(-50%,20px);
+  background:#25252e;
+  padding:12px 17px;
+  border-radius:12px;
+  opacity:0;
+  pointer-events:none;
+  transition:.25s;
+  z-index:200;
+  white-space:nowrap
+}
+
+.toast.show{
+  opacity:1;
+  transform:translate(-50%,0)
+}
+
+.bottom{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  height:68px;
+  background:rgba(7,7,11,.97);
+  border-top:1px solid #25252d;
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  z-index:40
+}
+
+.nav{
+  background:none;
+  color:#888;
+  text-align:center;
+  font-size:11px
+}
+
+.nav span{
+  display:block;
+  font-size:22px;
+  margin-bottom:3px
+}
+
+.nav.active{
+  color:#fff
+}
+
+@media(max-width:500px){
+  .stats{gap:23px}
+  .plans{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+  <div class="brand">
+    <div class="logo">V</div>
+    VIBEX
+  </div>
+
+  <button class="head-btn" onclick="openSettings()">⚙</button>
+</header>
+
+<main class="container">
+
+  <section class="profile-top">
+
+    <div class="avatar-wrap">
+      <img id="avatar" class="avatar" src="" alt="صورة الحساب">
+
+      <button class="change-photo" onclick="chooseAvatar()">📷</button>
+
+      <input
+        id="avatarInput"
+        type="file"
+        accept="image/*"
+        hidden
+        onchange="uploadAvatar(event)"
+      >
+    </div>
+
+    <div id="displayName" class="name">جاري التحميل...</div>
+
+    <div id="username" class="username">@...</div>
+
+    <div id="status" class="status" style="display:none"></div>
+
+    <div id="bio" class="bio"></div>
+
+    <div class="stats">
+      <div class="stat">
+        <strong id="followers">0</strong>
+        <span>المتابعون</span>
+      </div>
+
+      <div class="stat">
+        <strong id="following">0</strong>
+        <span>أتابع</span>
+      </div>
+
+      <div class="stat">
+        <strong id="videosCount">0</strong>
+        <span>الفيديوهات</span>
+      </div>
+    </div>
+
+    <div class="profile-buttons">
+
+      <button class="btn primary" onclick="openEditProfile()">
+        ✏️ تعديل الملف
+      </button>
+
+      <button class="btn premium" onclick="openPremium()">
+        ⭐ Premium
+      </button>
+
+      <button id="adminBtn" class="btn" style="display:none" onclick="openAdmin()">
+        🛡️ غرفة الأدمن
+      </button>
+
+    </div>
+
+  </section>
+
+  <div class="tabs">
+    <button id="myVideosTab" class="tab active" onclick="showTab('videos')">
+      🎬 فيديوهاتي
+    </button>
+
+    <button id="offlineTab" class="tab" onclick="showTab('offline')">
+      📥 بدون إنترنت
+    </button>
+  </div>
+
+  <section id="videosSection">
+    <div id="videos" class="videos">
+      <div style="grid-column:1/-1;text-align:center;padding:40px;color:#777">
+        جاري تحميل الفيديوهات...
+      </div>
+    </div>
+  </section>
+
+  <section id="offlineSection" style="display:none">
+    <div id="offlineVideos" class="videos">
+      <div style="grid-column:1/-1;text-align:center;padding:40px;color:#777">
+        لا توجد فيديوهات محفوظة.
+      </div>
+    </div>
+  </section>
+
+  <section id="settings" class="settings">
+
+    <div class="section-title">⚙️ الإعدادات</div>
+
+    <div class="setting-card">
+
+      <button class="setting" onclick="openEditProfile()">
+        <div class="setting-left">
+          <div class="setting-icon">👤</div>
+          <div>
+            <div class="setting-title">تعديل الحساب</div>
+            <span class="setting-sub">الاسم، اسم المستخدم، الحالة والنبذة</span>
+          </div>
+        </div>
+        <span class="arrow">‹</span>
+      </button>
+
+      <button class="setting" onclick="openPrivacy()">
+        <div class="setting-left">
+          <div class="setting-icon">🔒</div>
+          <div>
+            <div class="setting-title">الخصوصية</div>
+            <span class="setting-sub">التحكم في خصوصية الحساب</span>
+          </div>
+        </div>
+        <span class="arrow">‹</span>
+      </button>
+
+      <button class="setting" onclick="openNotificationsSettings()">
+        <div class="setting-left">
+          <div class="setting-icon">🔔</div>
+          <div>
+            <div class="setting-title">الإشعارات</div>
+            <span class="setting-sub">إعدادات إشعارات VIBEX</span>
+          </div>
+        </div>
+        <span class="arrow">‹</span>
+      </button>
+
+      <button class="setting" onclick="openOfflineSettings()">
+        <div class="setting-left">
+          <div class="setting-icon">📥</div>
+          <div>
+            <div class="setting-title">الفيديوهات بدون إنترنت</div>
+            <span class="setting-sub">إدارة الفيديوهات المحفوظة</span>
+          </div>
+        </div>
+        <span class="arrow">‹</span>
+      </button>
+
+      <button class="setting" onclick="openPremium()">
+        <div class="setting-left">
+          <div class="setting-icon">⭐</div>
+          <div>
+            <div class="setting-title">VIBEX Premium</div>
+            <span class="setting-sub">200 جنيه شهريًا أو 800 جنيه سنويًا</span>
+          </div>
+        </div>
+        <span class="arrow">‹</span>
+      </button>
+
+      <button class="setting" onclick="openSecurity()">
+        <div class="setting-left">
+          <div class="setting-icon">🛡️</div>
+          <div>
+            <div class="setting-title">الأمان والحساب</div>
+            <span class="setting-sub">إدارة أمان حسابك</span>
+          </div>
+        </div>
+        <span class="arrow">‹</span>
+      </button>
+
+      <button class="setting" onclick="showBlocked()">
+        <div class="setting-left">
+          <div class="setting-icon">🚫</div>
+          <div>
+            <div class="setting-title">الحسابات المحظورة</div>
+            <span class="setting-sub">إدارة الحسابات المحظورة</span>
+          </div>
+        </div>
+        <span class="arrow">‹</span>
+      </button>
+
+      <button class="setting" onclick="shareProfile()">
+        <div class="setting-left">
+          <div class="setting-icon">↗️</div>
+          <div>
+            <div class="setting-title">مشاركة الملف الشخصي</div>
+            <span class="setting-sub">شارك حسابك مع الآخرين</span>
+          </div>
+        </div>
+        <span class="arrow">‹</span>
+      </button>
+
+      <button class="setting" onclick="aboutVibex()">
+        <div class="setting-left">
+          <div class="setting-icon">ℹ️</div>
+          <div>
+            <div class="setting-title">عن VIBEX</div>
+            <span class="setting-sub">عِش اللحظة. شاركها.</span>
+          </div>
+        </div>
+        <span class="arrow">‹</span>
+      </button>
+
+    </div>
+
+    <div class="setting-card">
+
+      <button class="setting" onclick="logout()">
+        <div class="setting-left">
+          <div class="setting-icon">🚪</div>
+          <div class="setting-title">تسجيل الخروج</div>
+        </div>
+      </button>
+
+      <button class="setting" onclick="deleteAccount()" style="color:#ff5475">
+        <div class="setting-left">
+          <div class="setting-icon">🗑️</div>
+          <div>
+            <div class="setting-title danger-text">حذف الحساب</div>
+            <span class="setting-sub">هذا الإجراء يحتاج تأكيدًا</span>
+          </div>
+        </div>
+      </button>
+
+    </div>
+
+  </section>
+
+</main>
+
+<nav class="bottom">
+
+  <button class="nav" onclick="goHome()">
+    <span>⌂</span>
+    الرئيسية
+  </button>
+
+  <button class="nav" onclick="goSearch()">
+    <span>⌕</span>
+    اكتشف
+  </button>
+
+  <button class="nav" onclick="goUpload()">
+    <span>＋</span>
+    نشر
+  </button>
+
+  <button class="nav" onclick="goNotifications()">
+    <span>♡</span>
+    الإشعارات
+  </button>
+
+  <button class="nav active">
+    <span>◉</span>
+    حسابي
+  </button>
+
+</nav>
+
+<!-- تعديل الحساب -->
+<div id="editModal" class="modal" onclick="outsideClose(event,'editModal')">
+  <div class="sheet">
+
+    <div class="sheet-head">
+      <h2>تعديل الملف</h2>
+      <button class="close" onclick="closeModal('editModal')">×</button>
+    </div>
+
+    <div class="field">
+      <label>الاسم</label>
+      <input id="editName" maxlength="50">
+    </div>
+
+    <div class="field">
+      <label>اسم المستخدم</label>
+      <input id="editUsername" maxlength="30">
+    </div>
+
+    <div class="field">
+      <label>الحالة</label>
+      <input id="editStatus" maxlength="80" placeholder="مثال: 🎬 صانع محتوى">
+    </div>
+
+    <div class="field">
+      <label>النبذة</label>
+      <textarea id="editBio" maxlength="250"></textarea>
+    </div>
+
+    <button class="btn primary" style="width:100%" onclick="saveProfile()">
+      حفظ التغييرات
+    </button>
+
+  </div>
+</div>
+
+<!-- Premium -->
+<div id="premiumModal" class="modal" onclick="outsideClose(event,'premiumModal')">
+  <div class="sheet">
+
+    <div class="sheet-head">
+      <h2>⭐ VIBEX Premium</h2>
+      <button class="close" onclick="closeModal('premiumModal')">×</button>
+    </div>
+
+    <div class="premium-card">
+      <h2>استمتع بمزايا Premium</h2>
+      <p>
+        احصل على مزايا إضافية وتجربة مميزة داخل VIBEX.
+      </p>
+
+      <div class="plans">
+
+        <div class="plan">
+          <h3>شهري</h3>
+          <div class="price">
+            200
+            <small>جنيه / شهر</small>
+          </div>
+
+          <button
+            class="btn premium"
+            style="width:100%;margin-top:12px"
+            onclick="choosePlan('monthly')">
+            الاشتراك الشهري
+          </button>
+        </div>
+
+        <div class="plan">
+          <h3>سنوي</h3>
+          <div class="price">
+            800
+            <small>جنيه / سنة</small>
+          </div>
+
+          <button
+            class="btn premium"
+            style="width:100%;margin-top:12px"
+            onclick="choosePlan('yearly')">
+            الاشتراك السنوي
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="setting-card">
+
+      <div class="setting">
+        <div class="setting-left">
+          <div class="setting-icon">📥</div>
+          <div>
+            <div class="setting-title">الفيديوهات بدون إنترنت</div>
+            <span class="setting-sub">حفظ الفيديوهات المتاحة للمشاهدة لاحقًا</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="setting">
+        <div class="setting-left">
+          <div class="setting-icon">✨</div>
+          <div>
+            <div class="setting-title">مزايا حصرية</div>
+            <span class="setting-sub">ميزات Premium المستقبلية</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- الخصوصية -->
+<div id="privacyModal" class="modal">
+  <div class="sheet">
+
+    <div class="sheet-head">
+      <h2>🔒 الخصوصية</h2>
+      <button class="close" onclick="closeModal('privacyModal')">×</button>
+    </div>
+
+    <div class="setting-card">
+
+      <button class="setting" onclick="togglePrivate()">
+        <div class="setting-left">
+          <div class="setting-icon">🔐</div>
+          <div>
+            <div class="setting-title">حساب خاص</div>
+            <span class="setting-sub">
+              الموافقة على المتابعين قبل متابعتك
+            </span>
+          </div>
+        </div>
+
+        <div id="privateSwitch" class="switch">
+          <span></span>
+        </div>
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- الإشعارات -->
+<div id="notificationsModal" class="modal">
+  <div class="sheet">
+
+    <div class="sheet-head">
+      <h2>🔔 الإشعارات</h2>
+      <button class="close" onclick="closeModal('notificationsModal')">×</button>
+    </div>
+
+    <div class="setting-card">
+
+      <div class="setting">
+        <div class="setting-left">
+          <div class="setting-icon">❤️</div>
+          <div>
+            <div class="setting-title">الإعجابات</div>
+            <span class="setting-sub">إشعارات الإعجاب بالفيديوهات</span>
+          </div>
+        </div>
+        <button class="btn" onclick="showToast('تم تغيير الإعداد')">تشغيل</button>
+      </div>
+
+      <div class="setting">
+        <div class="setting-left">
+          <div class="setting-icon">💬</div>
+          <div>
+            <div class="setting-title">التعليقات</div>
+            <span class="setting-sub">إشعارات التعليقات</span>
+          </div>
+        </div>
+        <button class="btn" onclick="showToast('تم تغيير الإعداد')">تشغيل</button>
+      </div>
+
+      <div class="setting">
+        <div class="setting-left">
+          <div class="setting-icon">👥</div>
+          <div>
+            <div class="setting-title">المتابعات</div>
+            <span class="setting-sub">إشعارات المتابعين الجدد</span>
+          </div>
+        </div>
+        <button class="btn" onclick="showToast('تم تغيير الإعداد')">تشغيل</button>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- الأمان -->
+<div id="securityModal" class="modal">
+  <div class="sheet">
+
+    <div class="sheet-head">
+      <h2>🛡️ الأمان والحساب</h2>
+      <button class="close" onclick="closeModal('securityModal')">×</button>
+    </div>
+
+    <div class="setting-card">
+
+      <button class="setting" onclick="resetPassword()">
+        <div class="setting-left">
+          <div class="setting-icon">🔑</div>
+          <div>
+            <div class="setting-title">تغيير كلمة المرور</div>
+            <span class="setting-sub">إرسال رابط تغيير كلمة المرور إلى بريدك</span>
+          </div>
+        </div>
+        <span class="arrow">‹</span>
+      </button>
+
+      <button class="setting" onclick="showToast('سيتم إضافة سجل الأجهزة لاحقًا')">
+        <div class="setting-left">
+          <div class="setting-icon">📱</div>
+          <div>
+            <div class="setting-title">الأجهزة وتسجيلات الدخول</div>
+            <span class="setting-sub">إدارة الأجهزة المرتبطة بالحساب</span>
+          </div>
+        </div>
+        <span class="arrow">‹</span>
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+
+const SUPABASE_URL =
+"https://uxeflbmxngnaygrvrsbe.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_wKRwXTeO5ZeBKIQ7EbW5Xw_ockmVLNq";
+
+const ADMIN_EMAIL =
+"vibex.admin@gmail.com";
+
+const db =
+window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+let currentUser = null;
+let profile = null;
+
+
+/* =========================
+   البداية
+========================= */
+
+async function init(){
+
+  const {
+    data
+  } = await db.auth.getSession();
+
+  currentUser =
+    data?.session?.user || null;
+
+  if(!currentUser){
+    window.location.href = "./login.html";
+    return;
+  }
+
+  await loadProfile();
+
+  await loadMyVideos();
+
+  checkAdmin();
+
+}
+
+
+/* =========================
+   تحميل الحساب
+========================= */
+
+async function loadProfile(){
+
+  const {
+    data,
+    error
+  } = await db
+    .from("profiles")
+    .select("*")
+    .eq("id",currentUser.id)
+    .single();
+
+  if(error){
+
+    console.error(error);
+
+    showToast("تعذر تحميل الحساب");
+
+    return;
+  }
+
+  profile = data;
+
+  renderProfile();
+
+}
+
+
+/* =========================
+   عرض الحساب
+========================= */
+
+function renderProfile(){
+
+  const name =
+    profile.display_name ||
+    "مستخدم VIBEX";
+
+  const username =
+    profile.username ||
+    "user";
+
+  const avatar =
+    profile.avatar_url ||
+    "https://ui-avatars.com/api/?name=" +
+    encodeURIComponent(name) +
+    "&background=22222c&color=fff";
+
+  document.getElementById("avatar").src =
+    avatar;
+
+  document.getElementById("displayName").textContent =
+    name;
+
+  document.getElementById("username").textContent =
+    "@" + username;
+
+  document.getElementById("bio").textContent =
+    profile.bio || "";
+
+  if(profile.status){
+
+    const status =
+      document.getElementById("status");
+
+    status.textContent =
+      profile.status;
+
+    status.style.display =
+      "inline-block";
+
+  }
+
+  document.getElementById("followers").textContent =
+    profile.followers_count || 0;
+
+  document.getElementById("following").textContent =
+    profile.following_count || 0;
+
+}
+
+
+/* =========================
+   تعديل الملف
+========================= */
+
+function openEditProfile(){
+
+  document.getElementById("editName").value =
+    profile.display_name || "";
+
+  document.getElementById("editUsername").value =
+    profile.username || "";
+
+  document.getElementById("editStatus").value =
+    profile.status || "";
+
+  document.getElementById("editBio").value =
+    profile.bio || "";
+
+  openModal("editModal");
+
+}
+
+
+async function saveProfile(){
+
+  const displayName =
+    document.getElementById("editName").value.trim();
+
+  const username =
+    document.getElementById("editUsername").value
+    .trim()
+    .replace(/^@/,"")
+    .toLowerCase();
+
+  const status =
+    document.getElementById("editStatus").value.trim();
+
+  const bio =
+    document.getElementById("editBio").value.trim();
+
+  if(!displayName){
+
+    showToast("اكتب الاسم");
+
+    return;
+  }
+
+  if(!username){
+
+    showToast("اكتب اسم المستخدم");
+
+    return;
+  }
+
+  if(!/^[a-zA-Z0-9_.]+$/.test(username)){
+
+    showToast("اسم المستخدم يستخدم حروف إنجليزية وأرقام فقط");
+
+    return;
+  }
+
+  try{
+
+    const {
+      data: duplicate
+    } = await db
+      .from("profiles")
+      .select("id")
+      .eq("username",username)
+      .neq("id",currentUser.id)
+      .maybeSingle();
+
+    if(duplicate){
+
+      showToast("اسم المستخدم مستخدم بالفعل");
+
+      return;
+    }
+
+    const {
+      error
+    } = await db
+      .from("profiles")
+      .update({
+        display_name:displayName,
+        username:username,
+        status:status,
+        bio:bio
+      })
+      .eq("id",currentUser.id);
+
+    if(error) throw error;
+
+    profile.display_name =
+      displayName;
+
+    profile.username =
+      username;
+
+    profile.status =
+      status;
+
+    profile.bio =
+      bio;
+
+    renderProfile();
+
+    closeModal("editModal");
+
+    showToast("تم حفظ التغييرات ✅");
+
+  }catch(error){
+
+    console.error(error);
+
+    showToast("تعذر حفظ التغييرات");
+
+  }
+
+}
+
+
+/* =========================
+   تغيير الصورة
+========================= */
+
+function chooseAvatar(){
+
+  document
+    .getElementById("avatarInput")
+    .click();
+
+}
+
+
+async function uploadAvatar(event){
+
+  const file =
+    event.target.files?.[0];
+
+  if(!file) return;
+
+  if(!file.type.startsWith("image/")){
+
+    showToast("اختر صورة فقط");
+
+    return;
+  }
+
+  if(file.size > 5 * 1024 * 1024){
+
+    showToast("الصورة أكبر من 5MB");
+
+    return;
+  }
+
+  showToast("جاري رفع الصورة...");
+
+  try{
+
+    const extension =
+      file.name.split(".").pop();
+
+    const filePath =
+      currentUser.id +
+      "/avatar." +
+      extension;
+
+    const {
+      error:uploadError
+    } = await db.storage
+      .from("avatars")
+      .upload(
+        filePath,
+        file,
+        {
+          upsert:true,
+          contentType:file.type
+        }
+      );
+
+    if(uploadError) throw uploadError;
+
+    const {
+      data:urlData
+    } = db.storage
+      .from("avatars")
+      .getPublicUrl(filePath);
+
+    const avatarUrl =
+      urlData.publicUrl +
+      "?v=" +
+      Date.now();
+
+    const {
+      error:updateError
+    } = await db
+      .from("profiles")
+      .update({
+        avatar_url:avatarUrl
+      })
+      .eq("id",currentUser.id);
+
+    if(updateError) throw updateError;
+
+    profile.avatar_url =
+      avatarUrl;
+
+    document.getElementById("avatar").src =
+      avatarUrl;
+
+    showToast("تم تغيير الصورة ✅");
+
+  }catch(error){
+
+    console.error(error);
+
+    showToast(
+      "تعذر رفع الصورة. تأكد من صلاحيات Storage."
+    );
+
+  }
+
+}
+
+
+/* =========================
+   فيديوهات المستخدم
+========================= */
+
+async function loadMyVideos(){
+
+  const container =
+    document.getElementById("videos");
+
+  try{
+
+    const {
+      data,
+      error
+    } = await db
+      .from("videos")
+      .select("*")
+      .eq("user_id",currentUser.id)
+      .order("created_at",{ascending:false});
+
+    if(error) throw error;
+
+    document.getElementById("videosCount").textContent =
+      data?.length || 0;
+
+    if(!data || !data.length){
+
+      container.innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:45px;color:#777">
+          🎬<br><br>
+          لم تنشر أي فيديو بعد.
+        </div>
+      `;
+
+      return;
+    }
+
+    container.innerHTML =
+      data.map(video => `
+        <div class="video">
+
+          <video
+            src="${escapeAttr(video.video_url)}"
+            ${video.thumbnail_url
+              ? `poster="${escapeAttr(video.thumbnail_url)}"`
+              : ""}
+            muted
+            playsinline
+          ></video>
+
+          <div class="video-info">
+            👁 ${video.views_count || 0}
+          </div>
+
+        </div>
+      `).join("");
+
+  }catch(error){
+
+    console.error(error);
+
+    container.innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:40px;color:#777">
+        تعذر تحميل الفيديوهات.
+      </div>
+    `;
+
+  }
+
+}
+
+
+/* =========================
+   بدون إنترنت
+========================= */
+
+function showTab(type){
+
+  const videosSection =
+    document.getElementById("videosSection");
+
+  const offlineSection =
+    document.getElementById("offlineSection");
+
+  document
+    .getElementById("myVideosTab")
+    .classList.toggle(
+      "active",
+      type === "videos"
+    );
+
+  document
+    .getElementById("offlineTab")
+    .classList.toggle(
+      "active",
+      type === "offline"
+    );
+
+  if(type === "videos"){
+
+    videosSection.style.display = "block";
+    offlineSection.style.display = "none";
+
+  }else{
+
+    videosSection.style.display = "none";
+    offlineSection.style.display = "block";
+
+    loadOfflineVideos();
+
+  }
+
+}
+
+
+async function loadOfflineVideos(){
+
+  const container =
+    document.getElementById("offlineVideos");
+
+  const saved =
+    JSON.parse(
+      localStorage.getItem("vibex_offline_videos") || "[]"
+    );
+
+  if(!saved.length){
+
+    container.innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:45px;color:#777">
+        📥<br><br>
+        لا توجد فيديوهات محفوظة بدون إنترنت.
+      </div>
+    `;
+
+    return;
+  }
+
+  container.innerHTML =
+    saved.map(video => `
+      <div class="video">
+
+        <video
+          src="${escapeAttr(video.url)}"
+          controls
+          playsinline
+        ></video>
+
+        <div class="video-info">
+          ${escapeHtml(video.title || "فيديو")}
+        </div>
+
+      </div>
+    `).join("");
+
+}
+
+
+function openOfflineSettings(){
+
+  showTab("offline");
+
+  document
+    .getElementById("settings")
+    .classList.remove("show");
+
+}
+
+
+/* =========================
+   الخصوصية
+========================= */
+
+function openPrivacy(){
+
+  document
+    .getElementById("privacyModal")
+    .classList.add("show");
+
+  updatePrivateSwitch();
+
+}
+
+
+function updatePrivateSwitch(){
+
+  const sw =
+    document.getElementById("privateSwitch");
+
+  sw.classList.toggle(
+    "on",
+    !!profile.is_private
+  );
+
+}
+
+
+async function togglePrivate(){
+
+  const newValue =
+    !profile.is_private;
+
+  try{
+
+    const {
+      error
+    } = await db
+      .from("profiles")
+      .update({
+        is_private:newValue
+      })
+      .eq("id",currentUser.id);
+
+    if(error) throw error;
+
+    profile.is_private =
+      newValue;
+
+    updatePrivateSwitch();
+
+    showToast(
+      newValue
+        ? "تم تفعيل الحساب الخاص"
+        : "تم جعل الحساب عامًا"
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    showToast(
+      "تعذر تغيير الخصوصية"
+    );
+
+  }
+
+}
+
+
+/* =========================
+   Premium
+========================= */
+
+function openPremium(){
+
+  openModal("premiumModal");
+
+}
+
+
+function choosePlan(plan){
+
+  if(plan === "monthly"){
+
+    showToast(
+      "اخترت Premium الشهري — 200 جنيه"
+    );
+
+  }else{
+
+    showToast(
+      "اخترت Premium السنوي — 800 جنيه"
+    );
+
+  }
+
+}
+
+
+/* =========================
+   الإشعارات
+========================= */
+
+function openNotificationsSettings(){
+
+  openModal("notificationsModal");
+
+}
+
+
+/* =========================
+   الأمان
+========================= */
+
+function openSecurity(){
+
+  openModal("securityModal");
+
+}
+
+
+async function resetPassword(){
+
+  try{
+
+    const {
+      error
+    } = await db.auth.resetPasswordForEmail(
+      currentUser.email,
+      {
+        redirectTo:
+          window.location.origin +
+          "/pages/settings.html"
+      }
+    );
+
+    if(error) throw error;
+
+    showToast(
+      "تم إرسال رابط تغيير كلمة المرور"
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    showToast(
+      "تعذر إرسال رابط تغيير كلمة المرور"
+    );
+
+  }
+
+}
+
+
+/* =========================
+   المشاركة
+========================= */
+
+async function shareProfile(){
+
+  const url =
+    window.location.href;
+
+  try{
+
+    if(navigator.share){
+
+      await navigator.share({
+        title:
+          profile.display_name +
+          " | VIBEX",
+        text:
+          "شاهد حسابي على VIBEX",
+        url:url
+      });
+
+    }else{
+
+      await navigator.clipboard.writeText(url);
+
+      showToast(
+        "تم نسخ رابط الحساب"
+      );
+
+    }
+
+  }catch(error){}
+
+}
+
+
+/* =========================
+   الحسابات المحظورة
+========================= */
+
+function showBlocked(){
+
+  showToast(
+    "قسم الحسابات المحظورة جاهز للإضافة"
+  );
+
+}
+
+
+/* =========================
+   عن VIBEX
+========================= */
+
+function aboutVibex(){
+
+  alert(
+`VIBEX
+
+عِش اللحظة. شاركها.
+
+منصة للفيديوهات القصيرة وصناعة المحتوى.
+
+الإصدار: 1.0`
+  );
+
+}
+
+
+/* =========================
+   الأدمن
+========================= */
+
+async function checkAdmin(){
+
+  if(
+    (currentUser.email || "").toLowerCase()
+    !== ADMIN_EMAIL.toLowerCase()
+  ){
+
+    return;
+  }
+
+  const {
+    data
+  } = await db
+    .from("admin_users")
+    .select("user_id")
+    .eq("user_id",currentUser.id)
+    .maybeSingle();
+
+  if(data){
+
+    document.getElementById("adminBtn").style.display =
+      "inline-block";
+
+  }
+
+}
+
+
+function openAdmin(){
+
+  window.location.href =
+    "./admin.html";
+
+}
+
+
+/* =========================
+   الإعدادات
+========================= */
+
+function openSettings(){
+
+  document
+    .getElementById("settings")
+    .classList.toggle("show");
+
+  window.scrollTo({
+    top:document.body.scrollHeight,
+    behavior:"smooth"
+  });
+
+}
+
+
+/* =========================
+   تسجيل الخروج
+========================= */
+
+async function logout(){
+
+  await db.auth.signOut();
+
+  window.location.href =
+    "./login.html";
+
+}
+
+
+/* =========================
+   حذف الحساب
+========================= */
+
+async function deleteAccount(){
+
+  const first =
+    confirm(
+      "هل أنت متأكد أنك تريد حذف الحساب؟"
+    );
+
+  if(!first) return;
+
+  showToast(
+    "لحماية حسابك، حذف الحساب النهائي يحتاج تأكيدًا من خادم VIBEX."
+  );
+
+}
+
+
+/* =========================
+   التنقل
+========================= */
+
+function goHome(){
+
+  window.location.href =
+    "../index.html";
+
+}
+
+
+function goSearch(){
+
+  window.location.href =
+    "./search.html";
+
+}
+
+
+function goUpload(){
+
+  window.location.href =
+    "./upload.html";
+
+}
+
+
+function goNotifications(){
+
+  window.location.href =
+    "./notifications.html";
+
+}
+
+
+/* =========================
+   النوافذ
+========================= */
+
+function openModal(id){
+
+  document
+    .getElementById(id)
+    .classList.add("show");
+
+}
+
+
+function closeModal(id){
+
+  document
+    .getElementById(id)
+    .classList.remove("show");
+
+}
+
+
+function outsideClose(event,id){
+
+  if(event.target.id === id){
+
+    closeModal(id);
+
+  }
+
+}
+
+
+/* =========================
+   رسائل
+========================= */
+
+function showToast(text){
+
+  const toast =
+    document.getElementById("toast");
+
+  toast.textContent =
+    text;
+
+  toast.classList.add("show");
+
+  clearTimeout(
+    window.__toastTimer
+  );
+
+  window.__toastTimer =
+    setTimeout(
+      () =>
+        toast.classList.remove("show"),
+      2500
+    );
+
+}
+
+
+/* =========================
+   حماية HTML
+========================= */
+
+function escapeHtml(value){
+
+  return String(value ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+
+function escapeAttr(value){
+
+  return escapeHtml(value);
+
+}
+
+
+init();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VIBEX Admin</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #07070b;
+      color: #fff;
+      font-family: Arial, Tahoma, sans-serif;
+    }
+
+    button {
+      font: inherit;
+      cursor: pointer;
+      border: 0;
+    }
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      height: 70px;
+      padding: 0 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(10,10,15,.96);
+      border-bottom: 1px solid #25252d;
+      backdrop-filter: blur(15px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg,#7c3cff,#ff2d8d);
+    }
+
+    .admin-label {
+      color: #aaa;
+      font-size: 12px;
+      margin-top: 3px;
+    }
+
+    .logout {
+      background: #24242d;
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 10px;
+    }
+
+    .container {
+      width: min(1200px, 100%);
+      margin: auto;
+      padding: 20px;
+    }
+
+    .welcome {
+      padding: 22px;
+      border-radius: 18px;
+      background: linear-gradient(135deg,#171226,#171018);
+      border: 1px solid #30283f;
+      margin-bottom: 20px;
+    }
+
+    .welcome h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+
+    .welcome p {
+      margin: 0;
+      color: #aaa;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .stat {
+      background: #111117;
+      border: 1px solid #272731;
+      border-radius: 16px;
+      padding: 18px;
+    }
+
+    .stat-title {
+      color: #999;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    .stat-number {
+      font-size: 28px;
+      font-weight: 900;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2,1fr);
+      gap: 15px;
+    }
+
+    .card {
+      background: #111117;
+      border: 1px solid #272731;
+      border-radius: 17px;
+      padding: 18px;
+    }
+
+    .card h2 {
+      margin: 0 0 7px;
+      font-size: 18px;
+    }
+
+    .card p {
+      color: #888;
+      font-size: 13px;
+      line-height: 1.6;
+      margin: 0 0 15px;
+    }
+
+    .btn {
+      padding: 11px 14px;
+      border-radius: 10px;
+      background: #24242d;
+      color: #fff;
+      margin: 3px;
+    }
+
+    .btn.primary {
+      background: linear-gradient(90deg,#7c3cff,#ff2d8d);
+    }
+
+    .danger {
+      background: #401923;
+      color: #ff7f98;
+    }
+
+    .section {
+      margin-top: 20px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .section-title h2 {
+      margin: 0;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid #272731;
+      border-radius: 15px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 650px;
+    }
+
+    th, td {
+      padding: 13px;
+      border-bottom: 1px solid #25252d;
+      text-align: right;
+      font-size: 13px;
+    }
+
+    th {
+      color: #aaa;
+      background: #15151b;
+    }
+
+    td {
+      color: #eee;
+    }
+
+    .avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      object-fit: cover;
+      vertical-align: middle;
+      margin-left: 8px;
+      background: #24242d;
+    }
+
+    .loading {
+      text-align: center;
+      color: #888;
+      padding: 30px;
+    }
+
+    .message {
+      position: fixed;
+      left: 50%;
+      bottom: 25px;
+      transform: translateX(-50%) translateY(20px);
+      opacity: 0;
+      pointer-events: none;
+      padding: 12px 18px;
+      border-radius: 12px;
+      background: #24242d;
+      border: 1px solid #3a3a45;
+      z-index: 100;
+      transition: .25s;
+    }
+
+    .message.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .blocked {
+      display: none;
+      min-height: 100vh;
+      place-items: center;
+      text-align: center;
+      padding: 30px;
+    }
+
+    .blocked-box {
+      max-width: 430px;
+      padding: 30px;
+      background: #111117;
+      border: 1px solid #2b2b35;
+      border-radius: 20px;
+    }
+
+    @media(max-width:800px) {
+      .stats {
+        grid-template-columns: repeat(2,1fr);
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media(max-width:450px) {
+      .container {
+        padding: 13px;
+      }
+
+      .stats {
+        gap: 9px;
+      }
+
+      .stat {
+        padding: 14px;
+      }
+
+      .stat-number {
+        font-size: 23px;
+      }
+
+      .header {
+        padding: 0 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="blocked" class="blocked">
+  <div class="blocked-box">
+    <h2>🔒 غير مسموح</h2>
+    <p style="color:#999">
+      هذه الصفحة مخصصة لإدارة VIBEX فقط.
+    </p>
+    <button class="btn primary" onclick="goHome()">العودة إلى VIBEX</button>
+  </div>
+</div>
+
+<div id="adminApp" style="display:none">
+
+  <header class="header">
+    <div class="brand">
+      <div class="logo">V</div>
+      <div>
+        VIBEX
+        <div class="admin-label">لوحة تحكم الأدمن</div>
+      </div>
+    </div>
+
+    <button class="logout" onclick="logout()">تسجيل الخروج</button>
+  </header>
+
+  <main class="container">
+
+    <section class="welcome">
+      <h1>مرحبًا بك في لوحة تحكم VIBEX 👋</h1>
+      <p id="adminEmail">جاري تحميل بيانات الأدمن...</p>
+    </section>
+
+    <section class="stats">
+
+      <div class="stat">
+        <div class="stat-title">👥 المستخدمون</div>
+        <div id="usersCount" class="stat-number">—</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-title">🎬 الفيديوهات</div>
+        <div id="videosCount" class="stat-number">—</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-title">❤️ الإعجابات</div>
+        <div id="likesCount" class="stat-number">—</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-title">💬 التعليقات</div>
+        <div id="commentsCount" class="stat-number">—</div>
+      </div>
+
+    </section>
+
+    <section class="grid">
+
+      <div class="card">
+        <h2>👥 المستخدمون</h2>
+        <p>
+          عرض المستخدمين الموجودين في منصة VIBEX.
+        </p>
+        <button class="btn primary" onclick="loadUsers()">
+          تحديث المستخدمين
+        </button>
+      </div>
+
+      <div class="card">
+        <h2>🎬 الفيديوهات</h2>
+        <p>
+          عرض أحدث الفيديوهات المنشورة على المنصة.
+        </p>
+        <button class="btn primary" onclick="loadVideos()">
+          تحديث الفيديوهات
+        </button>
+      </div>
+
+      <div class="card">
+        <h2>📊 الإحصائيات</h2>
+        <p>
+          تحديث أرقام المنصة الحالية.
+        </p>
+        <button class="btn" onclick="loadStats()">
+          تحديث الإحصائيات
+        </button>
+      </div>
+
+      <div class="card">
+        <h2>🏠 VIBEX</h2>
+        <p>
+          العودة إلى الصفحة الرئيسية للمنصة.
+        </p>
+        <button class="btn" onclick="goHome()">
+          الصفحة الرئيسية
+        </button>
+      </div>
+
+    </section>
+
+    <section class="section">
+
+      <div class="section-title">
+        <h2>👥 آخر المستخدمين</h2>
+
+        <button class="btn" onclick="loadUsers()">
+          تحديث
+        </button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>المستخدم</th>
+              <th>اسم المستخدم</th>
+              <th>المتابعون</th>
+              <th>يتابع</th>
+              <th>تاريخ التسجيل</th>
+            </tr>
+          </thead>
+
+          <tbody id="usersTable">
+            <tr>
+              <td colspan="5" class="loading">
+                جاري التحميل...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+    <section class="section">
+
+      <div class="section-title">
+        <h2>🎬 أحدث الفيديوهات</h2>
+
+        <button class="btn" onclick="loadVideos()">
+          تحديث
+        </button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>الفيديو</th>
+              <th>الوصف</th>
+              <th>المشاهدات</th>
+              <th>الإعجابات</th>
+              <th>التاريخ</th>
+              <th>إجراء</th>
+            </tr>
+          </thead>
+
+          <tbody id="videosTable">
+            <tr>
+              <td colspan="6" class="loading">
+                جاري التحميل...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+  </main>
+</div>
+
+<div id="message" class="message"></div>
+
+<script>
+
+  const SUPABASE_URL =
+    "https://uxeflbmxngnaygrvrsbe.supabase.co";
+
+  const SUPABASE_KEY =
+    "sb_publishable_wKRwXTeO5ZeBKIQ7EbW5Xw_ockmVLNq";
+
+  const ADMIN_EMAIL =
+    "vibex.admin@gmail.com";
+
+  const db =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+  let currentUser = null;
+
+
+  async function initAdmin(){
+
+    try{
+
+      const {
+        data: sessionData
+      } = await db.auth.getSession();
+
+      currentUser =
+        sessionData?.session?.user || null;
+
+      if(!currentUser){
+
+        blockPage();
+        return;
+      }
+
+      /*
+        التحقق الأول من البريد
+      */
+      if(
+        (currentUser.email || "").toLowerCase()
+        !== ADMIN_EMAIL.toLowerCase()
+      ){
+
+        blockPage();
+        return;
+      }
+
+      /*
+        التحقق الثاني من جدول الأدمن
+      */
+      const {
+        data: adminRecord,
+        error
+      } = await db
+        .from("admin_users")
+        .select("user_id")
+        .eq("user_id", currentUser.id)
+        .maybeSingle();
+
+      if(error){
+
+        console.error(error);
+        blockPage();
+        return;
+      }
+
+      if(!adminRecord){
+
+        blockPage();
+        return;
+      }
+
+      document.getElementById("adminApp").style.display = "block";
+
+      document.getElementById("adminEmail").textContent =
+        "الحساب: " + currentUser.email;
+
+      await loadStats();
+      await loadUsers();
+      await loadVideos();
+
+    }catch(error){
+
+      console.error(error);
+      blockPage();
+
+    }
+
+  }
+
+
+  function blockPage(){
+
+    document.getElementById("adminApp").style.display = "none";
+    document.getElementById("blocked").style.display = "grid";
+
+  }
+
+
+  async function loadStats(){
+
+    try{
+
+      const users =
+        await db
+          .from("profiles")
+          .select("*",{count:"exact",head:true});
+
+      const videos =
+        await db
+          .from("videos")
+          .select("*",{count:"exact",head:true});
+
+      const likes =
+        await db
+          .from("likes")
+          .select("*",{count:"exact",head:true});
+
+      const comments =
+        await db
+          .from("comments")
+          .select("*",{count:"exact",head:true});
+
+      document.getElementById("usersCount").textContent =
+        users.count ?? 0;
+
+      document.getElementById("videosCount").textContent =
+        videos.count ?? 0;
+
+      document.getElementById("likesCount").textContent =
+        likes.count ?? 0;
+
+      document.getElementById("commentsCount").textContent =
+        comments.count ?? 0;
+
+    }catch(error){
+
+      console.error(error);
+
+      showMessage("تعذر تحميل الإحصائيات");
+
+    }
+
+  }
+
+
+  async function loadUsers(){
+
+    const table =
+      document.getElementById("usersTable");
+
+    table.innerHTML =
+      `<tr>
+        <td colspan="5" class="loading">
+          جاري تحميل المستخدمين...
+        </td>
+      </tr>`;
+
+    try{
+
+      const {
+        data,
+        error
+      } = await db
+        .from("profiles")
+        .select(
+          "id,username,display_name,avatar_url,followers_count,following_count,created_at"
+        )
+        .order("created_at",{ascending:false})
+        .limit(50);
+
+      if(error) throw error;
+
+      if(!data || !data.length){
+
+        table.innerHTML =
+          `<tr>
+            <td colspan="5" class="loading">
+              لا يوجد مستخدمون.
+            </td>
+          </tr>`;
+
+        return;
+      }
+
+      table.innerHTML =
+        data.map(user => {
+
+          const avatar =
+            user.avatar_url ||
+            "https://ui-avatars.com/api/?name=" +
+            encodeURIComponent(
+              user.display_name || user.username || "U"
+            ) +
+            "&background=22222c&color=fff";
+
+          return `
+            <tr>
+
+              <td>
+                <img
+                  class="avatar"
+                  src="${escapeAttr(avatar)}"
+                >
+                ${escapeHtml(user.display_name || "مستخدم")}
+              </td>
+
+              <td>
+                @${escapeHtml(user.username || "")}
+              </td>
+
+              <td>
+                ${user.followers_count || 0}
+              </td>
+
+              <td>
+                ${user.following_count || 0}
+              </td>
+
+              <td>
+                ${formatDate(user.created_at)}
+              </td>
+
+            </tr>
+          `;
+
+        }).join("");
+
+    }catch(error){
+
+      console.error(error);
+
+      table.innerHTML =
+        `<tr>
+          <td colspan="5" class="loading">
+            حدث خطأ أثناء تحميل المستخدمين.
+          </td>
+        </tr>`;
+
+    }
+
+  }
+
+
+  async function loadVideos(){
+
+    const table =
+      document.getElementById("videosTable");
+
+    table.innerHTML =
+      `<tr>
+        <td colspan="6" class="loading">
+          جاري تحميل الفيديوهات...
+        </td>
+      </tr>`;
+
+    try{
+
+      const {
+        data,
+        error
+      } = await db
+        .from("videos")
+        .select(`
+          id,
+          user_id,
+          caption,
+          video_url,
+          views_count,
+          likes_count,
+          comments_count,
+          created_at,
+          profiles:user_id(
+            username,
+            display_name
+          )
+        `)
+        .order("created_at",{ascending:false})
+        .limit(50);
+
+      if(error) throw error;
+
+      if(!data || !data.length){
+
+        table.innerHTML =
+          `<tr>
+            <td colspan="6" class="loading">
+              لا توجد فيديوهات.
+            </td>
+          </tr>`;
+
+        return;
+      }
+
+      table.innerHTML =
+        data.map(video => {
+
+          const profile =
+            video.profiles || {};
+
+          return `
+            <tr>
+
+              <td>
+                <a
+                  href="${escapeAttr(video.video_url)}"
+                  target="_blank"
+                  style="color:#b58cff"
+                >
+                  ▶ مشاهدة
+                </a>
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  video.caption || "بدون وصف"
+                )}
+              </td>
+
+              <td>
+                ${video.views_count || 0}
+              </td>
+
+              <td>
+                ${video.likes_count || 0}
+              </td>
+
+              <td>
+                ${formatDate(video.created_at)}
+              </td>
+
+              <td>
+                <button
+                  class="btn danger"
+                  onclick="deleteVideo('${video.id}')"
+                >
+                  حذف
+                </button>
+              </td>
+
+            </tr>
+          `;
+
+        }).join("");
+
+    }catch(error){
+
+      console.error(error);
+
+      table.innerHTML =
+        `<tr>
+          <td colspan="6" class="loading">
+            حدث خطأ أثناء تحميل الفيديوهات.
+          </td>
+        </tr>`;
+
+    }
+
+  }
+
+
+  async function deleteVideo(videoId){
+
+    const confirmed =
+      confirm(
+        "هل أنت متأكد من حذف هذا الفيديو؟"
+      );
+
+    if(!confirmed) return;
+
+    try{
+
+      const {
+        error
+      } = await db
+        .from("videos")
+        .delete()
+        .eq("id",videoId);
+
+      if(error) throw error;
+
+      showMessage("تم حذف الفيديو");
+
+      await loadVideos();
+      await loadStats();
+
+    }catch(error){
+
+      console.error(error);
+
+      showMessage(
+        "تعذر حذف الفيديو. تأكد من صلاحيات Supabase."
+      );
+
+    }
+
+  }
+
+
+  async function logout(){
+
+    await db.auth.signOut();
+
+    window.location.href =
+      "./login.html";
+
+  }
+
+
+  function goHome(){
+
+    window.location.href =
+      "../index.html";
+
+  }
+
+
+  function showMessage(text){
+
+    const el =
+      document.getElementById("message");
+
+    el.textContent = text;
+
+    el.classList.add("show");
+
+    clearTimeout(window.__messageTimer);
+
+    window.__messageTimer =
+      setTimeout(
+        () => el.classList.remove("show"),
+        2500
+      );
+
+  }
+
+
+  function formatDate(date){
+
+    if(!date) return "—";
+
+    return new Date(date).toLocaleDateString(
+      "ar-EG",
+      {
+        year:"numeric",
+        month:"short",
+        day:"numeric"
+      }
+    );
+
+  }
+
+
+  function escapeHtml(value){
+
+    return String(value ?? "")
+      .replace(/&/g,"&amp;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;")
+      .replace(/'/g,"&#039;");
+
+  }
+
+
+  function escapeAttr(value){
+
+    return escapeHtml(value);
+
+  }
+
+
+  initAdmin();
+
+</script>
+
+</body>
+</html>

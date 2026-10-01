@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>إنشاء حساب | VIBEX</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top right, rgba(124,60,255,.22), transparent 35%),
+        radial-gradient(circle at bottom left, rgba(255,45,141,.15), transparent 35%),
+        #07070b;
+      color: #fff;
+      font-family: "Cairo", Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .box {
+      width: min(430px, 100%);
+      background: rgba(20,19,28,.92);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 28px;
+      padding: 28px 22px;
+      box-shadow: 0 25px 80px rgba(0,0,0,.4);
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .logo-icon {
+      width: 65px;
+      height: 65px;
+      margin: auto;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg,#7c3cff,#ff2d8d);
+      font-size: 32px;
+      font-weight: 900;
+      box-shadow: 0 15px 35px rgba(124,60,255,.3);
+    }
+
+    .logo h1 {
+      margin-top: 10px;
+      font-size: 27px;
+    }
+
+    .logo p {
+      color: #999;
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .field {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      color: #ddd;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 7px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: #0d0c12;
+      color: #fff;
+      outline: none;
+      font-family: inherit;
+    }
+
+    input:focus {
+      border-color: #7c3cff;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: 0;
+      border-radius: 14px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      background: linear-gradient(135deg,#7c3cff,#ff2d8d);
+      margin-top: 7px;
+    }
+
+    .btn:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
+
+    .message {
+      display: none;
+      padding: 12px;
+      border-radius: 12px;
+      margin: 15px 0;
+      font-size: 13px;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .message.error {
+      background: rgba(255,60,90,.12);
+      border: 1px solid rgba(255,60,90,.25);
+      color: #ff8b9b;
+    }
+
+    .message.success {
+      background: rgba(60,220,140,.12);
+      border: 1px solid rgba(60,220,140,.25);
+      color: #78efb0;
+    }
+
+    .links {
+      text-align: center;
+      margin-top: 18px;
+      color: #999;
+      font-size: 13px;
+    }
+
+    .links a {
+      color: #b98cff;
+      text-decoration: none;
+      font-weight: 800;
+    }
+
+    .back {
+      display: block;
+      text-align: center;
+      margin-top: 17px;
+      color: #888;
+      text-decoration: none;
+      font-size: 12px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+
+  <div class="logo">
+    <div class="logo-icon">V</div>
+    <h1>VIBEX</h1>
+    <p>عِش اللحظة. شاركها.</p>
+  </div>
+
+  <form id="signupForm">
+
+    <div class="field">
+      <label>اسم المستخدم</label>
+
+      <input
+        id="username"
+        type="text"
+        placeholder="مثال: osman123"
+        minlength="3"
+        maxlength="30"
+        required
+      >
+    </div>
+
+    <div class="field">
+      <label>الاسم الظاهر</label>
+
+      <input
+        id="displayName"
+        type="text"
+        placeholder="اسمك"
+        maxlength="50"
+        required
+      >
+    </div>
+
+    <div class="field">
+      <label>البريد الإلكتروني</label>
+
+      <input
+        id="email"
+        type="email"
+        placeholder="example@email.com"
+        required
+      >
+    </div>
+
+    <div class="field">
+      <label>كلمة المرور</label>
+
+      <input
+        id="password"
+        type="password"
+        placeholder="6 أحرف على الأقل"
+        minlength="6"
+        required
+      >
+    </div>
+
+    <div
+      id="message"
+      class="message">
+    </div>
+
+    <button
+      id="signupButton"
+      class="btn"
+      type="submit">
+      إنشاء الحساب
+    </button>
+
+  </form>
+
+  <div class="links">
+    لديك حساب بالفعل؟
+    <a href="login.html">تسجيل الدخول</a>
+  </div>
+
+  <a
+    href="../index.html"
+    class="back">
+    ← العودة إلى VIBEX
+  </a>
+
+</div>
+
+
+<script>
+
+const SUPABASE_URL =
+  "https://uxeflbmxngnaygrvrsbe.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_wKRwXTeO5ZeBKIQ7EbW5Xw_ockmVLNq";
+
+const db =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+const form =
+  document.getElementById(
+    "signupForm"
+  );
+
+const message =
+  document.getElementById(
+    "message"
+  );
+
+const button =
+  document.getElementById(
+    "signupButton"
+  );
+
+
+function showMessage(
+  text,
+  type
+) {
+
+  message.textContent =
+    text;
+
+  message.className =
+    "message show " + type;
+
+}
+
+
+function cleanUsername(
+  username
+) {
+
+  return username
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "_")
+    .replace(
+      /[^a-z0-9_\u0600-\u06FF]/g,
+      ""
+    );
+
+}
+
+
+form.addEventListener(
+  "submit",
+  async function(event) {
+
+    event.preventDefault();
+
+    const username =
+      cleanUsername(
+        document
+          .getElementById("username")
+          .value
+      );
+
+    const displayName =
+      document
+        .getElementById("displayName")
+        .value
+        .trim();
+
+    const email =
+      document
+        .getElementById("email")
+        .value
+        .trim()
+        .toLowerCase();
+
+    const password =
+      document
+        .getElementById("password")
+        .value;
+
+
+    if (username.length < 3) {
+
+      showMessage(
+        "اسم المستخدم يجب أن يكون 3 أحرف على الأقل.",
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    if (password.length < 6) {
+
+      showMessage(
+        "كلمة المرور يجب أن تكون 6 أحرف على الأقل.",
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    button.disabled =
+      true;
+
+    button.textContent =
+      "جاري إنشاء الحساب...";
+
+
+    try {
+
+      /*
+       * نتأكد أولًا أن اسم المستخدم
+       * غير مستخدم.
+       */
+
+      const {
+        data: usernameData,
+        error: usernameError
+      } = await db
+        .from("profiles")
+        .select("id")
+        .eq(
+          "username",
+          username
+        )
+        .maybeSingle();
+
+
+      if (usernameError) {
+
+        console.error(
+          usernameError
+        );
+
+      }
+
+
+      if (usernameData) {
+
+        showMessage(
+          "اسم المستخدم مستخدم بالفعل. اختر اسمًا آخر.",
+          "error"
+        );
+
+        button.disabled =
+          false;
+
+        button.textContent =
+          "إنشاء الحساب";
+
+        return;
+
+      }
+
+
+      /*
+       * إنشاء حساب Supabase
+       */
+
+      const {
+        data,
+        error
+      } = await db.auth.signUp({
+
+        email:
+          email,
+
+        password:
+          password,
+
+        options: {
+
+          data: {
+
+            username:
+              username,
+
+            display_name:
+              displayName
+
+          }
+
+        }
+
+      });
+
+
+      if (error) {
+
+        console.error(
+          "SIGNUP ERROR:",
+          error
+        );
+
+        let msg =
+          error.message ||
+          "حدث خطأ أثناء إنشاء الحساب.";
+
+
+        if (
+          msg.includes(
+            "already registered"
+          )
+        ) {
+
+          msg =
+            "هذا البريد الإلكتروني مسجل بالفعل. جرّب تسجيل الدخول.";
+
+        }
+
+        else if (
+          msg.includes(
+            "rate limit"
+          ) ||
+          msg.includes(
+            "rate_limit"
+          )
+        ) {
+
+          msg =
+            "تم تجاوز حد إنشاء الحسابات مؤقتًا. انتظر قليلًا ثم حاول مرة أخرى.";
+
+        }
+
+        else if (
+          msg.includes(
+            "Invalid email"
+          )
+        ) {
+
+          msg =
+            "البريد الإلكتروني غير صحيح.";
+
+        }
+
+
+        showMessage(
+          msg,
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      /*
+       * إذا تم إنشاء Session
+       * ننتقل مباشرة للصفحة الرئيسية.
+       */
+
+      if (
+        data &&
+        data.session
+      ) {
+
+        showMessage(
+          "تم إنشاء الحساب بنجاح 🎉",
+          "success"
+        );
+
+
+        setTimeout(
+          function() {
+
+            window.location.href =
+              "../index.html";
+
+          },
+          700
+        );
+
+
+        return;
+
+      }
+
+
+      /*
+       * في حالة طلب تأكيد البريد.
+       */
+
+      showMessage(
+        "تم إنشاء الحساب. إذا ظهر لك طلب تأكيد البريد، افتح بريدك ثم سجّل الدخول.",
+        "success"
+      );
+
+
+      setTimeout(
+        function() {
+
+          window.location.href =
+            "login.html";
+
+        },
+        1800
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        error
+      );
+
+      showMessage(
+        "حدث خطأ غير متوقع. افتح وحدة التحكم لمعرفة التفاصيل.",
+        "error"
+      );
+
+    } finally {
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        "إنشاء الحساب";
+
+    }
+
+  }
+);
+
+</script>
+
+</body>
+</html>
